@@ -14,8 +14,8 @@ function Get-GSAAlerts
     )
     Begin
     {
-        Try {$GSANothing = Check-GSAAuthToken}
-            Catch {Throw $_}
+        Try {Check-GSAAuthToken}
+           Catch {Throw $_}
     }
     Process
     {

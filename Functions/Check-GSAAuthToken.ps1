@@ -1,14 +1,4 @@
 function Check-GSAAuthToken {
-    [CmdletBinding()]
-    
-    Param
-    (
-        # Specifies the password.
-        [Parameter(Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]$GSAauthHeader
-
-    )
 
     # Checking if authToken exists before running authentication
     if($global:GSAauthHeader){
