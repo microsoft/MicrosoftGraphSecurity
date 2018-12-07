@@ -25,7 +25,7 @@ function Get-GSAAlerts
         Else
         {
             
-            $Resource = "security/alerts?`$top=$top"
+            $Resource = "security/alerts"
             #need something for filters
             #GET /security/alerts?$filter={property} eq '{property-value}'
             #GET /security/alerts?$filter={property} eq '{property-value}'&$top=5
