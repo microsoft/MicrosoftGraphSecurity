@@ -131,6 +131,7 @@ function Get-GSAAuthToken {
             'Content-Type'='application/json'
             'Authorization'="Bearer " + $authResult.AccessToken
             'ExpiresOn'=$authResult.ExpiresOn
+            'Prefer'='return=representation'
             }
 
         }

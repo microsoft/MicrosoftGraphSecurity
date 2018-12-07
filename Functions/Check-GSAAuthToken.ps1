@@ -11,7 +11,7 @@ function Check-GSAAuthToken {
 
         if($TokenExpires -le 0){
 
-            write-warning "Authentication Token expired" $TokenExpires "minutes ago"
+            write-warning "Authentication Token expired $TokenExpires minutes ago"
             write-host
 
             Try {$Username = Select-GSAUsername}
