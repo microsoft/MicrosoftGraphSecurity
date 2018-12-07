@@ -1,35 +1,27 @@
-function Get-GSASecureScores
-{
+function Get-GSASecureScores {
     [CmdletBinding()]
-     Param
+    Param
     (
         # Specifies the maximum number of results to retrieve
-        [Parameter(Mandatory=$false)]
-        [string]$top = "10",
+        [Parameter(Mandatory = $false)]
+        [string]$top = "1",
 
         #Specifies the API Version
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("v1","Beta")]
-        [string]$Version = "v1"
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("v1", "beta")]
+        [string]$Version = "beta"
     )
-    Begin
-    {
+    Begin {
         Try {Check-GSAAuthToken}
-           Catch {Throw $_}
+        Catch {Throw $_}
     }
-    Process
-    {
-        if($Version -eq "Beta"){
-            #Add Beta Here
-        }
-        Else
-        {
-            
+    Process {
+        if ($Version -eq "beta") {
             $Resource = "security/secureScores?`$top=$top"
             try {
-                $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
+                $uri = "https://graph.microsoft.com/$Version/$($resource)"
                 (Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get).value
-            } 
+            }
             catch {
                 $ex = $_.Exception
                 $errorResponse = $ex.Response.GetResponseStream()
@@ -43,9 +35,12 @@ function Get-GSASecureScores
                 break
             }
         }
+        Else {
+
+
+        }
     }
-    End
-    {
+    End {
         #Do nothing
     }
 }

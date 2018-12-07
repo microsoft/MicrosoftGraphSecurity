@@ -71,23 +71,23 @@ function Set-GSAAlert
         [Parameter(Mandatory=$false)]
         [ValidateSet("unknown","truePositive","falsePositive","benignPositive")]
         [string]$feedback,
-        
+
         #Sets the Feedback; 0,1,2,3
         [Parameter(Mandatory=$false)]
         [ValidateSet("unknown","newAlert","inProgress","resolved")]
         [string]$Status,
-        
+
         #Sets any tags
         [Parameter(Mandatory=$false)]
         [string]$Tags
-        
+
     )
     Begin
     {
         Try {$GSANothing = Check-GSAAuthToken}
             Catch {Throw $_}
 
-        If($Closed -and $Open){ 
+        If($Closed -and $Open){
             Write-Error "You cannot specify open and close parameters at the same time"
             exit
         }
@@ -135,7 +135,7 @@ write-verbose $Body
             try {
                 $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
                 Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Patch -Body $Body
-            } 
+            }
             catch {
                 $ex = $_.Exception
                 $errorResponse = $ex.Response.GetResponseStream()
