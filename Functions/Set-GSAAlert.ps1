@@ -150,6 +150,6 @@ function Set-GSAAlert
     }
     End
     {
-        #Do Tnothing
+        #Do Nothing
     }
 }
