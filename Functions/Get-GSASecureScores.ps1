@@ -19,7 +19,14 @@ function Get-GSASecureScores {
         if ($Version -eq "beta") {
             $Resource = "security/secureScores?`$top=$top"
             try {
+            if($Version -eq "beta"){
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
+            }
+            Else{
+                #$uri = "https://graph.microsoft.com/$Version.0/$($resource)"
+                Write-Error "Secure Score is not yet implemented in v1.0 API"
+                break
+            }
                 (Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get).value
             }
             catch {
