@@ -55,9 +55,9 @@ function Set-GSAAlert
         [Parameter(Mandatory=$false)]
         [switch]$Closed,
 
-         #sets the alert to open
-         [Parameter(Mandatory=$false)]
-         [switch]$Open,
+        #sets the alert to open
+        [Parameter(Mandatory=$false)]
+        [switch]$Open,
 
         #Sets the close time
         [Parameter(Mandatory=$false)]
@@ -94,20 +94,20 @@ function Set-GSAAlert
     }
     Process
     {
+        $Resource = "security/alerts/$Id"
         if($Version -eq "Beta"){
-            #Add Beta Here
+            $uri = "https://graph.microsoft.com/beta/$($resource)"
         }
         Else
         {
-            #$Id = "54A1D7B4-9BB9-3F23-93A7-B5B6B0DD7CF3"
-            $Resource = "security/alerts/$Id"
             $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
-            $alert = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
-            $provider = $Alert.vendorInformation.provider
-            $Vendor = $Alert.vendorInformation.vendor
+        }
+        $alert = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+        $provider = $Alert.vendorInformation.provider
+        $Vendor = $Alert.vendorInformation.vendor
 
-            #need to build the body https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/alert_update
-            $baseBody = @"
+        #need to build the body https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/alert_update
+        $baseBody = @"
 {
     "vendorInformation": {
         "provider": "$provider",
@@ -115,39 +115,37 @@ function Set-GSAAlert
         }
 }
 "@
-            $objBody = ConvertFrom-Json $baseBody
-            if($assignedTo){$objBody | Add-Member -Type NoteProperty -Name 'assignedTo' -Value "$assignedTo"}
-            if($Closed){
-                $DateTime = (Get-Date -UFormat '+%Y-%m-%dT%H:%M:%SZ')
-                $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$DateTime"
-            }
-            if($closedDateTime){
-                $closedDateTime = (Get-Date -Date $closedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
-                $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$closedDateTime"
-            }
-            if($Open){$objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value $null}
-            if($comments){$objBody | Add-Member -Type NoteProperty -Name 'comments' -Value @("$comments")}
-            if($feedback){$objBody | Add-Member -Type NoteProperty -Name 'feedback' -Value "$feedback"}
-            if($status){$objBody | Add-Member -Type NoteProperty -Name 'status' -Value "$status"}
-            if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
-            $Body = ConvertTo-Json $objBody -Depth 5
-write-verbose $Body
-            try {
-                $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
-                Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Patch -Body $Body
-            } 
-            catch {
-                $ex = $_.Exception
-                $errorResponse = $ex.Response.GetResponseStream()
-                $reader = New-Object System.IO.StreamReader($errorResponse)
-                $reader.BaseStream.Position = 0
-                $reader.DiscardBufferedData()
-                $responseBody = $reader.ReadToEnd();
-                Write-Host "Response content:`n$responseBody" -f Red
-                Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-                write-host
-                break
-            }
+        $objBody = ConvertFrom-Json $baseBody
+        if($assignedTo){$objBody | Add-Member -Type NoteProperty -Name 'assignedTo' -Value "$assignedTo"}
+        if($Closed){
+            $DateTime = (Get-Date -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+            $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$DateTime"
+        }
+        if($closedDateTime){
+            $closedDateTime = (Get-Date -Date $closedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+            $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$closedDateTime"
+        }
+        if($Open){$objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value $null}
+        if($comments){$objBody | Add-Member -Type NoteProperty -Name 'comments' -Value @("$comments")}
+        if($feedback){$objBody | Add-Member -Type NoteProperty -Name 'feedback' -Value "$feedback"}
+        if($status){$objBody | Add-Member -Type NoteProperty -Name 'status' -Value "$status"}
+        if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
+        $Body = ConvertTo-Json $objBody -Depth 5
+
+        try {
+            Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Patch -Body $Body
+        } 
+        catch {
+            $ex = $_.Exception
+            $errorResponse = $ex.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($errorResponse)
+            $reader.BaseStream.Position = 0
+            $reader.DiscardBufferedData()
+            $responseBody = $reader.ReadToEnd();
+            Write-Host "Response content:`n$responseBody" -f Red
+            Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+            write-host
+            break
         }
     }
     End
