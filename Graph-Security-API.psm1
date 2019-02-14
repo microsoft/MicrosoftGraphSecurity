@@ -11,7 +11,7 @@ Resolve-Path -Path $mypath\Functions\*.ps1 | ForEach-Object -Process {
 
 #----------------------------Exports---------------------------
 # Cmdlets to export (must be exported as functions, not cmdlets) - This array format can be copied directly to the manifest as the 'FunctionsToExport' value
-$ExportedCommands = @('Get-GSAAlert','Get-GSAAlerts','Get-GSACredential','Get-GSAAuthToken','Set-GSAAlert')
+$ExportedCommands = @('Get-GSAAlert','Get-GSACredential','Get-GSAAuthToken','Set-GSAAlert')
 $ExportedCommands | ForEach-Object {Export-ModuleMember -Function $_}
 
 # Vars to export (must be exported here, even if also included in the module manifest in 'VariablesToExport'
