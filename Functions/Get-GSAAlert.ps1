@@ -29,7 +29,7 @@ function Get-GSAAlert
         # Specifies the maximum number of results to retrieve
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateRange(1,1000)]
-        [int]$top = "10",
+        [int]$top = "1",
 
         # Specifies the number of records, from the beginning of the result set, to skip.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
@@ -38,28 +38,168 @@ function Get-GSAAlert
 
         # Returns the number of alerts to the user
         [Parameter(ParameterSetName='Count', Mandatory=$false)]
-        [ValidateSet("true, false")]
+        [ValidateSet("true", "false")]
         [string]$count = "false",
 
-         ##### OData Query Params #####
-
-        # Specifies the number of records, from the beginning of the result set, to skip.
+        ##### OrderBy Param #####
         [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateSet("Low","Medium", "High")]
-        [string]$severity = "none",
+        [ValidateSet("riskScore","tags", "id",
+        "azureTenantId","activityGroupName", "assignedTo",
+        "category","closedDateTime", "comments",
+        "confidence","createdDateTime", "description",
+        "detectionIds","eventDateTime", "feedback",
+        "lastModifiedDateTime","recommendedActions", "severity",
+        "sourceMaterials","status", "title",
+        "vendorInformation","cloudAppStates", "fileStates",
+        "hostStates","malwareStates", "networkConnections",
+        "processes","registryKeyStates", "triggers",
+        "userStates","vulnerabilityStates")]
+        [string]$orderBy = "none",
 
-        # Limits the results by performing a free text search
+        ##### Select Param #####
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateSet("riskScore","tags", "id",
+                    "azureTenantId","activityGroupName", "assignedTo",
+                    "category","closedDateTime", "comments",
+                    "confidence","createdDateTime", "description",
+                    "detectionIds","eventDateTime", "feedback",
+                    "lastModifiedDateTime","recommendedActions", "severity",
+                    "sourceMaterials","status", "title",
+                    "vendorInformation","cloudAppStates", "fileStates",
+                    "hostStates","malwareStates", "networkConnections",
+                    "processes","registryKeyStates", "triggers",
+                    "userStates","vulnerabilityStates")]
+        [string[]]$select,
+
+        #### OData Query Params #####
+
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({$_.Length -ge 5})]
-        [string]$title,
+        [ValidateRange(1,10)]
+        [int]$riskScore,
 
-        # Limits the results by performing a free text search
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({$_.Length -ge 5})]
-        [string]$status
+        [string]$tags,
 
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [int]$azureTenantId,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$activityGroupName,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$assignedTo,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$category,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$closedDateTime,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$comments,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$confidence,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$createdDateTime,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$description,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$detectionIds,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$eventDateTime,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$feedback,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$lastModifiedDateTime,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$recommendedActions,
+
+         # Specifies the number of records, from the beginning of the result set, to skip.
+         [Parameter(ParameterSetName='List', Mandatory=$false)]
+         [ValidateSet("Low","Medium", "High")]
+         [string]$severity = "none",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$sourceMaterials,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$status,
+
+         # Limits the results by performing a free text search
+         [Parameter(ParameterSetName='List', Mandatory=$false)]
+         [ValidateNotNullOrEmpty()]
+         [ValidateScript({$_.Length -ge 5})]
+         [string]$title,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$vendorInformation,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$cloudAppStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$fileStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$hostStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$malwareStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$networkConnections,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$processes,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$registryKeyStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$triggers,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$userStates,
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$vulnerabilityStates
     )
 
     Begin
@@ -104,37 +244,46 @@ function Get-GSAAlert
             $body = ""
 
             if($Skip){$body += "`$skip=$Skip"}
-            if($top){$body += "?`$top=$top&"}
-
-            $filterSet = @{}
+            if($top){$body += "?`$top=$top"}
+            if($select){$body += "&`$select=$select"}
+            if($orderBy -ne "none"){$body += "&`$orderBy=$orderBy"}
 
             # Simple filters
-            if ($severity -ne "none"){$filter=$true; $filterSet += @{'severity'= $severity}}
-            if ($title){$filter=$true;$filterSet += @{'title'= $title}}
-            if ($status){$filter=$true;$filterSet += @{'status'= $status}}
 
-            $seperateFilterSet = $filterSet.GetEnumerator() | ForEach-Object({ "$($_.Name)+eq+'$($_.Value)'" })
+            if ($riskScore){$body += "&`$filter=riskScore+eq+$riskScore"}
+            if ($tags){$body += "&`$filter=tags+eq+$tags"}
+            if ($azureTenantId){$body += "&`$filter=azureTenantId+eq+$azureTenantId"}
+            if ($activityGroupName){$body += "&`$filter=activityGroupName+eq+$activityGroupName"}
+            if ($assignedTo){$body += "&`$filter=assignedTo+eq+$assignedTo"}
+            if ($category){$body += "&`$filter=category+eq+$category"}
+            if ($closedDateTime){$body += "&`$filter=closedDateTime+eq+$closedDateTime"}
+            if ($comments){$body += "&`$filter=comments+eq+$comments"}
+            if ($confidence){$body += "&`$filter=confidence+eq+$confidence"}
+            if ($createdDateTime){$body += "&`$filter=createdDateTime+eq+$createdDateTime"}
+            if ($description){$body += "&`$filter=description+eq+$description"}
+            if ($detectionIds){$body += "&`$filter=detectionIds+eq+$detectionIds"}
+            if ($feedback){$body += "&`$filter=feedback+eq+$feedback"}
+            if ($lastModifiedDateTime){$body += "&`$filter=lastModifiedDateTime+eq+$lastModifiedDateTime"}
+            if ($recommendedActions){$body += "&`$filter=recommendedActions+eq+$recommendedActions"}
+            if ($severity -ne "none"){$body += "&`$filter=severity+eq+`'$severity`'"}
+            if ($sourceMaterials){$body += "&`$filter=sourceMaterials+eq+$sourceMaterials"}
+            if ($status){$body += "&`$filter=status+eq+$status"}
+            if ($vendorInformation){$body += "&`$filter=vendorInformation+eq$vendorInformation"}
+            if ($cloudAppStates){$body += "&`$filter=cloudAppStates+eq$cloudAppStates"}
+            if ($fileStates){$body += "&`$filter=fileStates+eq$fileStates"}
+            if ($hostStates){$body += "&`$filter=hostStates+eq$hostStates"}
+            if ($malwareStates){$body += "&`$filter=malwareStates+eq$malwareStates"}
+            if ($networkConnections){$body += "&`$filter=networkConnections+eq$networkConnections"}
+            if ($processes){$body += "&`$filter=processes+eq$processes"}
+            if ($registryKeyStates){$body += "&`$filter=malwareStates+eq$registryKeyStates"}
+            if ($triggers){$body += "&`$filter=triggers+eq$triggers"}
+            if ($userStates){$body += "&`$filter=userStates+eq$userStates"}
+            if ($vulnerabilityStates){$body += "&`$filter=vulnerabilityStates+eq$vulnerabilityStates"}
 
-            $filterCount = $seperateFilterSet.count
-            ForEach ($string in $seperateFilterSet){
-                Write-Verbose "This is the $filterCount"
-                if($filterCount -le 1){
-                    $filterString += $string
-                }
-                else {
-                    $filterCount = $filterCount - 1
-                    $filterString += $string + '&'
-                }
-            }
-            Write-Verbose "This is the $filterString"
+            $body = $body -replace(" ",",")
+            Write-Verbose "This is the $body"
 
-            ForEach($string in $filterString){
-                if($filter){$body += "`$filter=$string"}
-            }
-
-            Write-Host $body
             #region ----------------------------API CALL----------------------------
-
 
             Write-Verbose "In the List"
             try {
