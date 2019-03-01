@@ -214,7 +214,7 @@ function Get-GSAAlert
         {
             try {
                 # Fetch the item by its id
-                $resource = "security/alerts/$ID"
+                $resource = "security/alerts/$Identity"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
                 $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
             }
@@ -230,7 +230,7 @@ function Get-GSAAlert
                 write-host
                 break
             }
-            $response
+            $response.value
         }
     }
     End
@@ -310,31 +310,6 @@ function Get-GSAAlert
 
             }
             $response.value
-         }
-         else
-         {
-            Write-Verbose "Not Fetch or List"
-             # Get the matching items and handle errors
-             try {
-                Write-Verbose "Trying of nothing"
-                $resource = "security/alerts"
-                $uri = "https://graph.microsoft.com/$Version/$($resource)"
-                $response = (Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get).value
-                Write-Verbose "End of nothing"
-            }
-            catch {
-                $ex = $_.Exception
-                $errorResponse = $ex.Response.GetResponseStream()
-                $reader = New-Object System.IO.StreamReader($errorResponse)
-                $reader.BaseStream.Position = 0
-                $reader.DiscardBufferedData()
-                $responseBody = $reader.ReadToEnd();
-                Write-Host "Response content:`n$responseBody" -f Red
-                Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-                write-host
-                break
-            }
-            $response
          }
     }
 }
