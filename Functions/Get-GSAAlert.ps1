@@ -29,7 +29,7 @@ function Get-GSAAlert
         # Specifies the maximum number of results to retrieve
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateRange(1,1000)]
-        [int]$top = "1",
+        [int]$top = "100",
 
         # Specifies the number of records, from the beginning of the result set, to skip.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
@@ -55,21 +55,6 @@ function Get-GSAAlert
         "processes","registryKeyStates", "triggers",
         "userStates","vulnerabilityStates")]
         [string]$orderBy = "none",
-
-        ##### Select Param #####
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateSet("riskScore","tags", "id",
-                    "azureTenantId","activityGroupName", "assignedTo",
-                    "category","closedDateTime", "comments",
-                    "confidence","createdDateTime", "description",
-                    "detectionIds","eventDateTime", "feedback",
-                    "lastModifiedDateTime","recommendedActions", "severity",
-                    "sourceMaterials","status", "title",
-                    "vendorInformation","cloudAppStates", "fileStates",
-                    "hostStates","malwareStates", "networkConnections",
-                    "processes","registryKeyStates", "triggers",
-                    "userStates","vulnerabilityStates")]
-        [string[]]$select,
 
         #### OData Query Params #####
 
@@ -157,9 +142,15 @@ function Get-GSAAlert
          [ValidateScript({$_.Length -ge 5})]
          [string]$title,
 
+        #Vendor Information
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$vendorInformation,
+        [string]$provider,
+
+        #Vendor Information
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$vendor,
 
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
@@ -217,6 +208,7 @@ function Get-GSAAlert
                 $resource = "security/alerts/$Identity"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
                 $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+                Write-Verbose "Calling: $uri"
             }
             catch {
                 $ex = $_.Exception
@@ -225,9 +217,9 @@ function Get-GSAAlert
                 $reader.BaseStream.Position = 0
                 $reader.DiscardBufferedData()
                 $responseBody = $reader.ReadToEnd();
-                Write-Host "Response content:`n$responseBody" -f Red
+                Write-Verbose "Response content:`n$responseBody"
                 Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-                write-host
+
                 break
             }
             $response
@@ -235,8 +227,9 @@ function Get-GSAAlert
     }
     End
     {
+
         # After all things have been processed in pipeline
-         if ($PSCmdlet.ParameterSetName -eq 'List')
+         if ($PSCmdlet.ParameterSetName -eq 'List' -or $PSCmdlet.ParameterSetName -eq 'Default' -and $PSCmdlet.ParameterSetName -ne 'Fetch')
          {
 
             # List mode logic only needs to happen once, so it goes in the 'End' block for efficiency
@@ -245,7 +238,6 @@ function Get-GSAAlert
 
             if($Skip){$body += "`$skip=$Skip"}
             if($top){$body += "?`$top=$top"}
-            if($select){$body += "&`$select=$select"}
             if($orderBy -ne "none"){$body += "&`$orderBy=$orderBy"}
 
             # Simple filters
@@ -268,7 +260,8 @@ function Get-GSAAlert
             if ($severity -ne "none"){$body += "&`$filter=severity+eq+`'$severity`'"}
             if ($sourceMaterials){$body += "&`$filter=sourceMaterials+eq+$sourceMaterials"}
             if ($status){$body += "&`$filter=status+eq+$status"}
-            if ($vendorInformation){$body += "&`$filter=vendorInformation+eq$vendorInformation"}
+            if ($provider){$body += "&`$filter=vendorInformation/provider+eq+`'$provider`'"}
+            if ($vendor){$body += "&`$filter=vendorInformation/vendor+eq+`'$vendor`'"}
             if ($cloudAppStates){$body += "&`$filter=cloudAppStates+eq$cloudAppStates"}
             if ($fileStates){$body += "&`$filter=fileStates+eq$fileStates"}
             if ($hostStates){$body += "&`$filter=hostStates+eq$hostStates"}
@@ -281,7 +274,7 @@ function Get-GSAAlert
             if ($vulnerabilityStates){$body += "&`$filter=vulnerabilityStates+eq$vulnerabilityStates"}
 
             $body = $body -replace(" ",",")
-            Write-Verbose "This is the $body"
+            Write-Verbose "URI Body: $body"
 
             #region ----------------------------API CALL----------------------------
 
@@ -311,27 +304,6 @@ function Get-GSAAlert
             }
             $response.value
          }
-        if ($PSCmdlet.ParameterSetName -eq 'Default')
-        {
-            try {
-                # Fetch the item by its id
-                $resource = "security/alerts/"
-                $uri = "https://graph.microsoft.com/$Version/$($resource)"
-                $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
-            }
-            catch {
-                $ex = $_.Exception
-                $errorResponse = $ex.Response.GetResponseStream()
-                $reader = New-Object System.IO.StreamReader($errorResponse)
-                $reader.BaseStream.Position = 0
-                $reader.DiscardBufferedData()
-                $responseBody = $reader.ReadToEnd();
-                Write-Host "Response content:`n$responseBody" -f Red
-                Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-                write-host
-                break
-            }
-            $response.value
-        }
+
     }
 }
