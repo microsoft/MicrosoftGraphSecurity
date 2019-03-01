@@ -210,7 +210,7 @@ function Get-GSAAlert
     Process
     {
         # Fetch mode should happen once for each item from the pipeline, so it goes in the 'Process' block
-        if ($PSCmdlet.ParameterSetName -eq 'Fetch' -or $PSCmdlet.ParameterSetName -eq 'Default')
+        if ($PSCmdlet.ParameterSetName -eq 'Fetch')
         {
             try {
                 # Fetch the item by its id
@@ -230,7 +230,7 @@ function Get-GSAAlert
                 write-host
                 break
             }
-            $response.value
+            $response
         }
     }
     End
@@ -311,5 +311,27 @@ function Get-GSAAlert
             }
             $response.value
          }
+        if ($PSCmdlet.ParameterSetName -eq 'Default')
+        {
+            try {
+                # Fetch the item by its id
+                $resource = "security/alerts/"
+                $uri = "https://graph.microsoft.com/$Version/$($resource)"
+                $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+            }
+            catch {
+                $ex = $_.Exception
+                $errorResponse = $ex.Response.GetResponseStream()
+                $reader = New-Object System.IO.StreamReader($errorResponse)
+                $reader.BaseStream.Position = 0
+                $reader.DiscardBufferedData()
+                $responseBody = $reader.ReadToEnd();
+                Write-Host "Response content:`n$responseBody" -f Red
+                Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+                write-host
+                break
+            }
+            $response.value
+        }
     }
 }
