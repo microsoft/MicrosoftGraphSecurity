@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <#
 .Synopsis
    Sets the status of alerts in Graph Security API.
@@ -31,8 +30,7 @@
 .FUNCTIONALITY
    Set-GSAAlert is intended to function as a mechanism for setting the status of alerts using Graph Security API.
 #>
-=======
->>>>>>> parent of 2796fa2... Updates
+
 function Set-GSAAlert
 {
     [CmdletBinding()]
@@ -45,7 +43,6 @@ function Set-GSAAlert
         #Specifies the API Version
         [Parameter(Mandatory=$false)]
         [ValidateSet("v1","Beta")]
-<<<<<<< HEAD
         [string]$Version = "v1",
 
         #Sets the owner of the alert
@@ -82,10 +79,6 @@ function Set-GSAAlert
         #Sets any tags
         [Parameter(Mandatory=$false)]
         [string]$Tags
-        
-=======
-        [string]$Version = "v1"
->>>>>>> parent of 2796fa2... Updates
     )
     Begin
     {
