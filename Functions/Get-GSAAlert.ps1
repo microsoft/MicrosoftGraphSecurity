@@ -210,7 +210,7 @@ function Get-GSAAlert
     Process
     {
         # Fetch mode should happen once for each item from the pipeline, so it goes in the 'Process' block
-        if ($PSCmdlet.ParameterSetName -eq 'Fetch')
+        if ($PSCmdlet.ParameterSetName -eq 'Fetch' -or $PSCmdlet.ParameterSetName -eq 'Default')
         {
             try {
                 # Fetch the item by its id
