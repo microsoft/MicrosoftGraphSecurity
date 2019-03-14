@@ -1,14 +1,3 @@
-<#
-.Synopsis
-   Gets an alert or alerts based on filter
-.DESCRIPTION
-
-.EXAMPLE
-
-.FUNCTIONALITY
-
-#>
-
 function Get-GSAAlert
 {
     [cmdletbinding(DefaultParameterSetName='Default')]
@@ -58,139 +47,106 @@ function Get-GSAAlert
 
         #### OData Query Params #####
 
+        # Provider generated/calculated risk score of the network connection. Recommended value range of 0-1, which equates to a percentage.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateRange(1,10)]
-        [int]$riskScore,
+        [string]$riskScore,
 
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$tags,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [int]$azureTenantId,
-
+        # Name or alias of the activity group (attacker) this alert is attributed to.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$activityGroupName,
 
+        # Name of the analyst the alert is assigned to for triage, investigation, or remediation (supports update).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$assignedTo,
 
+        # Azure subscription ID, present if this alert is related to an Azure resource.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$azureSubscriptionId,
+
+        # Azure Active Directory tenant ID. Required.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$azureTenantId,
+
+        # Category of the alert (for example, credentialTheft, ransomware, etc.).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$category,
 
+        # Customer-provided comments on alert (for customer alert management) (supports update).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$closedDateTime,
+        [string[]]$comments,
 
+        # Confidence of the detection logic (percentage between 1-100).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$comments,
+        [string[]]$confidence,
 
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$confidence,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$createdDateTime,
-
+        # Alert description.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$description,
 
+        # Set of alerts related to this alert entity (each alert is pushed to the SIEM as a separate record).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$detectionIds,
+        [string[]]$detectionIds,
 
+        # Analyst feedback on the alert.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$eventDateTime,
+        [ValidateSet("unknown","truePositive", "falsePositive", "begninPostive")]
+        [string]$feedback = "none",
 
+        # Vendor/provider recommended action(s) to take as a result of the alert (for example, isolate machine, enforce2FA, reimage host).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$feedback,
+        [string[]]$recommendedActions,
 
+        # Alert severity - set by vendor/provider.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$lastModifiedDateTime,
+        [ValidateSet("unknown","informational", "low", "medium", "high")]
+        [string]$severity = "none",
 
+        # Hyperlinks (URIs) to the source material related to the alert, for example, provider's user interface for alerts or log search, etc.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$recommendedActions,
+        [string[]]$sourceMaterials,
 
-         # Specifies the number of records, from the beginning of the result set, to skip.
-         [Parameter(ParameterSetName='List', Mandatory=$false)]
-         [ValidateSet("Low","Medium", "High")]
-         [string]$severity = "none",
-
+        # Alert lifecycle status (stage).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$sourceMaterials,
+        [ValidateSet("unknown","newAlert", "inProgress", "resolved")]
+        [string]$status = "none",
 
+        # User-definable labels that can be applied to an alert and can serve as filter conditions (for example "HVA", "SAW", etc.) (supports update).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$status,
+        [string[]]$tags,
 
-         # Limits the results by performing a free text search
-         [Parameter(ParameterSetName='List', Mandatory=$false)]
-         [ValidateNotNullOrEmpty()]
-         [ValidateScript({$_.Length -ge 5})]
-         [string]$title,
+        # Alert title. Required.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript({$_.Length -ge 5})]
+        [string]$title,
 
         #Vendor Information
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$provider,
 
-        #Vendor Information
+        # Threat intelligence pertaining to one or more vulnerabilities related to this alert.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$vendor,
+        [string]$vendor
 
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$cloudAppStates,
 
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$fileStates,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$hostStates,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$malwareStates,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$networkConnections,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$processes,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$registryKeyStates,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$triggers,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$userStates,
-
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$vulnerabilityStates
     )
 
     Begin
@@ -242,38 +198,27 @@ function Get-GSAAlert
 
             # Simple filters
 
-            if ($riskScore){$body += "&`$filter=riskScore+eq+$riskScore"}
-            if ($tags){$body += "&`$filter=tags+eq+$tags"}
-            if ($azureTenantId){$body += "&`$filter=azureTenantId+eq+$azureTenantId"}
-            if ($activityGroupName){$body += "&`$filter=activityGroupName+eq+$activityGroupName"}
-            if ($assignedTo){$body += "&`$filter=assignedTo+eq+$assignedTo"}
-            if ($category){$body += "&`$filter=category+eq+$category"}
-            if ($closedDateTime){$body += "&`$filter=closedDateTime+eq+$closedDateTime"}
-            if ($comments){$body += "&`$filter=comments+eq+$comments"}
-            if ($confidence){$body += "&`$filter=confidence+eq+$confidence"}
-            if ($createdDateTime){$body += "&`$filter=createdDateTime+eq+$createdDateTime"}
-            if ($description){$body += "&`$filter=description+eq+$description"}
-            if ($detectionIds){$body += "&`$filter=detectionIds+eq+$detectionIds"}
-            if ($feedback){$body += "&`$filter=feedback+eq+$feedback"}
-            if ($lastModifiedDateTime){$body += "&`$filter=lastModifiedDateTime+eq+$lastModifiedDateTime"}
-            if ($recommendedActions){$body += "&`$filter=recommendedActions+eq+$recommendedActions"}
+            if ($category){$body += "&`$filter=category+eq+`'$category`'"}
             if ($severity -ne "none"){$body += "&`$filter=severity+eq+`'$severity`'"}
-            if ($sourceMaterials){$body += "&`$filter=sourceMaterials+eq+$sourceMaterials"}
-            if ($status){$body += "&`$filter=status+eq+$status"}
+            if ($status -ne "none"){$body += "&`$filter=status+eq+`'$status`'"}
             if ($provider){$body += "&`$filter=vendorInformation/provider+eq+`'$provider`'"}
             if ($vendor){$body += "&`$filter=vendorInformation/vendor+eq+`'$vendor`'"}
-            if ($cloudAppStates){$body += "&`$filter=cloudAppStates+eq$cloudAppStates"}
-            if ($fileStates){$body += "&`$filter=fileStates+eq$fileStates"}
-            if ($hostStates){$body += "&`$filter=hostStates+eq$hostStates"}
-            if ($malwareStates){$body += "&`$filter=malwareStates+eq$malwareStates"}
-            if ($networkConnections){$body += "&`$filter=networkConnections+eq$networkConnections"}
-            if ($processes){$body += "&`$filter=processes+eq$processes"}
-            if ($registryKeyStates){$body += "&`$filter=malwareStates+eq$registryKeyStates"}
-            if ($triggers){$body += "&`$filter=triggers+eq$triggers"}
-            if ($userStates){$body += "&`$filter=userStates+eq$userStates"}
-            if ($vulnerabilityStates){$body += "&`$filter=vulnerabilityStates+eq$vulnerabilityStates"}
+            if ($title){$body += "&`$filter=title+eq+`'$title`'"}
+            if ($azureTenantId){$body += "&`$filter=azureTenantId+eq+`'$azureTenantId`'"}
 
-            $body = $body -replace(" ",",")
+            if ($riskScore){$body += "&`$filter=riskScore+eq+$riskScore"}
+            if ($tags){$body += "&`$filter=tags+eq+$tags"}
+            if ($azureSubscriptionId){$body += "&`$filter=azureSubscriptionId+eq+$azureSubscriptionId"}
+            if ($activityGroupName){$body += "&`$filter=activityGroupName+eq+$activityGroupName"}
+            if ($assignedTo){$body += "&`$filter=assignedTo+eq+$assignedTo"}
+            if ($comments){$body += "&`$filter=comments+eq+$comments"}
+            if ($confidence){$body += "&`$filter=confidence+eq+$confidence"}
+            if ($description){$body += "&`$filter=description+eq+`'$description`'"}
+            if ($detectionIds){$body += "&`$filter=detectionIds+eq+$detectionIds"}
+            if ($feedback -ne "none"){$body += "&`$filter=feedback+eq+`'$feedback`'"}
+            if ($recommendedActions){$body += "&`$filter=recommendedActions+eq+$recommendedActions"}
+            if ($sourceMaterials){$body += "&`$filter=sourceMaterials+eq+$sourceMaterials"}
+
             Write-Verbose "URI Body: $body"
 
             #region ----------------------------API CALL----------------------------
