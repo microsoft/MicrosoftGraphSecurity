@@ -1,26 +1,26 @@
-function Check-GSAAuthToken {
+function Test-GraphSecurityAuthToken {
 
     # Checking if authToken exists before running authentication
-    if($global:GSAauthHeader){
+    if($global:GraphSecurityauthHeader){
 
         # Setting DateTime to Universal time to work in all timezones
         $DateTime = (Get-Date).ToUniversalTime()
 
         # If the authToken exists checking when it expires
-        $TokenExpires = ($GSAauthHeader.ExpiresOn.datetime - $DateTime).Minutes
+        $TokenExpires = ($GraphSecurityauthHeader.ExpiresOn.datetime - $DateTime).Minutes
 
         if($TokenExpires -le 0){
 
             write-warning "Authentication Token expired $TokenExpires minutes ago"
             write-host
 
-            Try {$Username = Select-GSAUsername}
+            Try {$Username = Select-GraphSecurityUsername}
                 Catch {Throw $_}
 
-            Try {$AppId = Select-GSAAppId}
+            Try {$AppId = Select-GraphSecurityAppId}
                 Catch {Throw $_}
 
-            Get-GSAAuthToken
+            Get-GraphSecurityAuthToken
 
             }
 
@@ -32,13 +32,13 @@ function Check-GSAAuthToken {
 
     else {
 
-            Try {$Username = Select-GSAUsername}
+            Try {$Username = Select-GraphSecurityUsername}
                 Catch {Throw $_}
 
-            Try {$AppId = Select-GSAAppId}
+            Try {$AppId = Select-GraphSecurityAppId}
                 Catch {Throw $_}
 
-            Get-GSAAuthToken
+            Get-GraphSecurityAuthToken
 
         }
 

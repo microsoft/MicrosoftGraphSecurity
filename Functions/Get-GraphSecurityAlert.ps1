@@ -1,4 +1,4 @@
-function Get-GSAAlert
+function Get-GraphSecurityAlert
 {
     [cmdletbinding(DefaultParameterSetName='Default')]
      param
@@ -151,7 +151,7 @@ function Get-GSAAlert
 
     Begin
     {
-        Try {Check-GSAAuthToken}
+        Try {Test-GraphSecurityAuthToken}
            Catch {Throw $_}
     }
     Process
@@ -163,7 +163,7 @@ function Get-GSAAlert
                 # Fetch the item by its id
                 $resource = "security/alerts/$Identity"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
-                $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+                $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
                 Write-Verbose "Calling: $uri"
             }
             catch {
@@ -230,7 +230,7 @@ function Get-GSAAlert
                 $uri = "https://graph.microsoft.com/$Version/$($resource)$body"
 
 
-                $response = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+                $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
 
                 Write-Verbose "Trying List $response"
             }

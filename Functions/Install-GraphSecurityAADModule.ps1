@@ -1,4 +1,4 @@
-function Install-GSAAADModule
+function Install-GraphSecurityAADModule
 {
     [CmdletBinding()]
 

@@ -1,17 +1,17 @@
 <#
 .Synopsis
-   Gets a authenticaiton token to be used by other Graph Security API module cmdlets.
+   Gets a authenticaiton token to be used by other Microsoft Graph Security module cmdlets.
 .DESCRIPTION
-   Get-GSAAuthToken gets an authentication token to be used by other Graph Security API module cmdlets.
+   Get-GraphSecurityAuthToken gets an authentication token to be used by other Microsoft Graph Security module cmdlets.
 
-   When using Get-GSAAuthToken you will be prompted to provide your Azure AD username (UPN), password and AppId.
+   When using Get-GraphSecurityAuthToken you will be prompted to provide your Azure AD username (UPN), password and AppId.
 
-   Get-GSAAuthToken takes the token and stores them in a special global session variable called $GSAAuthToken.
+   Get-GraphSecurityAuthToken takes the token and stores them in a special global session variable called $GraphSecurityAuthToken.
 
-   All Graph Security API Module cmdlets reference that special global variable to pass requests to your tenant.
+   All Microsoft Graph Security Module cmdlets reference that special global variable to pass requests to your tenant.
 
 .EXAMPLE
-   Get-GSAAuthToken
+   Get-GraphSecurityAuthToken
 
     This prompts the user to enter both their username as well as their password, then prompts for AppId.
 
@@ -20,7 +20,7 @@
     Username = AppId
     Password = AppId (Example: 64407e7c-8522-417f-a003-f69ad0b1a89b)
 
-    C:\>$GSAAuthToken
+    C:\>$GraphSecurityAuthToken
 
     To verify your auth token is set in the current session, run the above command.
 
@@ -29,10 +29,10 @@
     nicholas@contoso.com  System.Security.SecureString
 
 .FUNCTIONALITY
-   Get-GSAAuthToken is intended to get an authentication token into a global session variable to allow other cmdlets to authenticate when passing requests.
+   Get-GraphSecurityAuthToken is intended to get an authentication token into a global session variable to allow other cmdlets to authenticate when passing requests.
 #>
 
-function Get-GSAAuthToken {
+function Get-GraphSecurityAuthToken {
     [CmdletBinding()]
     
     Param
@@ -40,14 +40,14 @@ function Get-GSAAuthToken {
         # Specifies the password.
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]$GSACredential
+        [System.Management.Automation.PSCredential]$GraphSecurityCredential
 
     )
     
-    Try {$Username = Select-GSAUsername}
+    Try {$Username = Select-GraphSecurityUsername}
         Catch {Throw $_}
 
-    Try {$AppId = Select-GSAAppId}
+    Try {$AppId = Select-GraphSecurityAppId}
         Catch {Throw $_}
 
     $user = New-Object "System.Net.Mail.MailAddress" -ArgumentList $Username
@@ -67,7 +67,7 @@ function Get-GSAAuthToken {
     }
 
     if ($AadModule -eq $null) {
-        Install-GSAAADModule
+        Install-GraphSecurityAADModule
         $AadModule = Get-Module -Name "AzureAD" -ListAvailable
     }
 
@@ -84,7 +84,7 @@ function Get-GSAAuthToken {
 
             if($AadModule.count -gt 1){
 
-            $aadModule = $AadModule | select -Unique
+            $aadModule = $AadModule | Select-Object -Unique
 
             }
 
@@ -127,7 +127,7 @@ function Get-GSAAuthToken {
 
         # Creating header for Authorization token
 
-        $Global:GSAauthHeader = @{
+        $Global:GraphSecurityauthHeader = @{
             'Content-Type'='application/json'
             'Authorization'="Bearer " + $authResult.AccessToken
             'ExpiresOn'=$authResult.ExpiresOn

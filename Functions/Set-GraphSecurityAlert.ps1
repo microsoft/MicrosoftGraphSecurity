@@ -1,9 +1,9 @@
 <#
 .Synopsis
-   Sets the status of alerts in Graph Security API.
+   Sets the status of alerts in Microsoft Graph Security.
 
 .DESCRIPTION
-   Sets the status of alerts in Graph Security API.
+   Sets the status of alerts in Microsoft Graph Security.
 
    There are multiple parameter sets:
 
@@ -18,20 +18,20 @@
    An alert identity is always required to be specified either explicity or implicitly from the pipeline.
 
 .EXAMPLE
-   Set-GSAAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 -Status resolved -Feedback truePositive
+   Set-GraphSecurityAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 -Status resolved -Feedback truePositive
 
     This marks a single specified alert as 'resolved' and as a 'truePositive'.
 
 .EXAMPLE
-   Get-GSAAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 | Set-GSAAlert -Status inProgress -Assignedto joe@contoso.com
+   Get-GraphSecurityAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 | Set-GraphSecurityAlert -Status inProgress -Assignedto joe@contoso.com
 
     This will set the status of the specified alert as "inProgress" and who is working it "joe@contoso.com".
 
 .FUNCTIONALITY
-   Set-GSAAlert is intended to function as a mechanism for setting the status of alerts using Graph Security API.
+   Set-GraphSecurityAlert is intended to function as a mechanism for setting the status of alerts using Microsoft Graph Security.
 #>
 
-function Set-GSAAlert
+function Set-GraphSecurityAlert
 {
     [CmdletBinding()]
      Param
@@ -82,7 +82,7 @@ function Set-GSAAlert
     )
     Begin
     {
-        Try {$GSANothing = Check-GSAAuthToken}
+        Try {$GraphSecurityNothing = Check-GraphSecurityAuthToken}
             Catch {Throw $_}
 
         If($Closed -and $Open){ 
@@ -100,7 +100,7 @@ function Set-GSAAlert
         {
             $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
         }
-        $alert = Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Get
+        $alert = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
         $provider = $Alert.vendorInformation.provider
         $Vendor = $Alert.vendorInformation.vendor
 
@@ -131,7 +131,7 @@ function Set-GSAAlert
         $Body = ConvertTo-Json $objBody -Depth 5
 
         try {
-            Invoke-RestMethod -Uri $uri -Headers $GSAAuthHeader -Method Patch -Body $Body
+            Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Patch -Body $Body
         } 
         catch {
             $ex = $_.Exception
