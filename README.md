@@ -14,6 +14,7 @@ To get value from this module you must...
 
 
 ...have PowerShell v5+ (comes standard on Windows 10)
+
 ...have configured authorization for acess.  See [Authorization and the Microsoft Graph Security API](https://docs.microsoft.com/en-us/graph/security-authorization)
 
 ## Getting Started
