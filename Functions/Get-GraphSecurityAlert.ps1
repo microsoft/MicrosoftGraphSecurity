@@ -31,6 +31,8 @@ function Get-GraphSecurityAlert
         [string]$count = "false",
 
         ##### OrderBy Param #####
+
+        #Currently orderBy Ascending by default
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateSet("riskScore","tags", "id",
         "azureTenantId","activityGroupName", "assignedTo",
@@ -50,7 +52,7 @@ function Get-GraphSecurityAlert
         # Provider generated/calculated risk score of the network connection. Recommended value range of 0-1, which equates to a percentage.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$riskScore,
+        [int]$riskScore,
 
         # Name or alias of the activity group (attacker) this alert is attributed to.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
@@ -86,11 +88,6 @@ function Get-GraphSecurityAlert
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string[]]$confidence,
-
-        # Alert description.
-        [Parameter(ParameterSetName='List', Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$description,
 
         # Set of alerts related to this alert entity (each alert is pushed to the SIEM as a separate record).
         [Parameter(ParameterSetName='List', Mandatory=$false)]
@@ -136,17 +133,97 @@ function Get-GraphSecurityAlert
         [ValidateScript({$_.Length -ge 5})]
         [string]$title,
 
-        #Vendor Information
+        ####### Vendor Information ######
+
+        # Specific provider (product/service - not vendor company); for example, WindowsDefenderATP.
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string]$provider,
 
-        # Threat intelligence pertaining to one or more vulnerabilities related to this alert.
+        # Name of the alert vendor (for example, Microsoft, Dell, FireEye). Required
         [Parameter(ParameterSetName='List', Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$vendor
+        [string]$vendor,
 
+        ####### User State Information ######
 
+        # AAD User object identifier (GUID) - represents the physical/multi-account user entity.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$aadUserId,
+
+        # Account name of user account (without Active Directory domain or DNS domain) - (also called mailNickName). Case-Sensitive
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$accountName,
+
+        # For email-related alerts - user account's email 'role'.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$emailRole,
+
+        # User sign-in name - internet format: (user account name)@(user account DNS domain name).
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$userPrincipalName,
+
+        ####### Host Security State Information ######
+
+        # Host FQDN (Fully Qualified Domain Name) (for example, machine.company.com).
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$FQDN,
+
+        # Private (not routable) IPv4 or IPv6 address (see RFC 1918) at the time of the alert.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$privateIpAddress,
+
+        # Publicly routable IPv4 or IPv6 address (see RFC 1918) at time of the alert.
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$publicIpAddress,
+
+        ####### File Security State Information ######
+
+        # File name (without path).
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$fileName,
+
+        ####### Date Time Params ######
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$eventDateTimeAfter = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$eventDateTimeBefore = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$createdDateTimeAfter = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$createdDateTimeBefore = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$closedDateTimeAfter = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$closedDateTimeBefore = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$lastModifiedDateTimeAfter = "",
+
+        [Parameter(ParameterSetName='List', Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$lastModifiedDateTimeBefore = ""
     )
 
     Begin
@@ -190,35 +267,92 @@ function Get-GraphSecurityAlert
 
             # List mode logic only needs to happen once, so it goes in the 'End' block for efficiency
 
-            $body = ""
-
-            if($Skip){$body += "`$skip=$Skip"}
-            if($top){$body += "?`$top=$top"}
-            if($orderBy -ne "none"){$body += "&`$orderBy=$orderBy"}
+            $body = "?`$top=$top&`$filter="
 
             # Simple filters
 
-            if ($category){$body += "&`$filter=category+eq+`'$category`'"}
-            if ($severity -ne "none"){$body += "&`$filter=severity+eq+`'$severity`'"}
-            if ($status -ne "none"){$body += "&`$filter=status+eq+`'$status`'"}
-            if ($provider){$body += "&`$filter=vendorInformation/provider+eq+`'$provider`'"}
-            if ($vendor){$body += "&`$filter=vendorInformation/vendor+eq+`'$vendor`'"}
-            if ($title){$body += "&`$filter=title+eq+`'$title`'"}
-            if ($azureTenantId){$body += "&`$filter=azureTenantId+eq+`'$azureTenantId`'"}
+            if ($category){$body += "`category+eq+`'$category`' and "}
+            if ($severity -ne "none"){$body += "severity+eq+`'$severity`' and "}
+            if ($status -ne "none"){$body += "status+eq+`'$status`' and "}
+            if ($title){$body += "title+eq+`'$title`' and "}
+            if ($azureTenantId){$body += "azureTenantId+eq+`'$azureTenantId`' and "}
 
-            if ($riskScore){$body += "&`$filter=riskScore+eq+$riskScore"}
-            if ($tags){$body += "&`$filter=tags+eq+$tags"}
-            if ($azureSubscriptionId){$body += "&`$filter=azureSubscriptionId+eq+$azureSubscriptionId"}
-            if ($activityGroupName){$body += "&`$filter=activityGroupName+eq+$activityGroupName"}
-            if ($assignedTo){$body += "&`$filter=assignedTo+eq+$assignedTo"}
-            if ($comments){$body += "&`$filter=comments+eq+$comments"}
-            if ($confidence){$body += "&`$filter=confidence+eq+$confidence"}
-            if ($description){$body += "&`$filter=description+eq+`'$description`'"}
-            if ($detectionIds){$body += "&`$filter=detectionIds+eq+$detectionIds"}
-            if ($feedback -ne "none"){$body += "&`$filter=feedback+eq+`'$feedback`'"}
-            if ($recommendedActions){$body += "&`$filter=recommendedActions+eq+$recommendedActions"}
-            if ($sourceMaterials){$body += "&`$filter=sourceMaterials+eq+$sourceMaterials"}
+            if ($aadUserId){$body += "userStates/any(d:d/aadUserId+eq+`'$aadUserId`') and "}
+            if ($accountName){$body += "userStates/any(d:d/accountName+eq+`'$accountName`') and "}
+            if ($userPrincipalName){$body += "userStates/any(d:d/userPrincipalName+eq+`'$userPrincipalName`') and "}
+            if ($domainName){$body += "userStates/any(d:d/domainName+eq+`'$domainName`') and "}
 
+            if ($riskScore){$body += "riskScore+eq+$riskScore and "} #Type Check
+
+            if ($tags){$body += "tags+eq+$tags and "}
+            if ($azureSubscriptionId){$body += "azureSubscriptionId+eq+$azureSubscriptionId and "}
+            if ($activityGroupName){$body += "activityGroupName+eq+$activityGroupName and "}
+            if ($assignedTo){$body += "assignedTo+eq+$assignedTo and "}
+            if ($comments){$body += "comments+eq+$comments and "}
+            if ($confidence){$body += "confidence+eq+$confidence and "}
+            if ($detectionIds){$body += "detectionIds+eq+$detectionIds and "}
+            if ($feedback -ne "none"){$body += "feedback+eq+`'$feedback`' and "}
+            if ($recommendedActions){$body += "recommendedActions+eq+$recommendedActions and "}
+            if ($sourceMaterials){$body += "sourceMaterials+eq+$sourceMaterials and "}
+
+            if($eventDateTimeAfter){
+                $eventDateTimeAfter = (Get-Date -Date $eventDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "eventDateTime+gt+$eventDateTimeAfter and "
+            }
+
+            if($eventDateTimeBefore){
+                $eventDateTimeBefore = (Get-Date -Date $eventDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "eventDateTime+lt+$eventDateTimeBefore and "
+            }
+
+            if($createdDateTimeAfter){
+                $eventDateTimeAfter = (Get-Date -Date $createdDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "createdDateTime+gt+$createdDateTimeAfter and "
+            }
+
+            if($createdDateTimeBefore){
+                $createdDateTimeBefore = (Get-Date -Date $createdDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "createdDateTime+lt+$createdDateTimeBefore and "
+            }
+
+            if($closedDateTimeAfter){
+                $closedDateTimeAfter = (Get-Date -Date $closedDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "closedDateTime+gt+$closedDateTimeAfter and "
+            }
+
+            if($closedDateTimeBefore){
+                $closedDateTimeBefore = (Get-Date -Date $closedDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "closedDateTime+lt+$closedDateTimeBefore and "
+            }
+
+            if($closedDateTimeAfter){
+                $closedDateTimeAfter = (Get-Date -Date $closedDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "closedDateTime+gt+$closedDateTimeAfter and "
+            }
+
+            if($closedDateTimeBefore){
+                $closedDateTimeBefore = (Get-Date -Date $closedDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "closedDateTime+lt+$closedDateTimeBefore and "
+            }
+
+            if($lastModifiedDateTimeAfter){
+                $closedDateTimeAfter = (Get-Date -Date $closedDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "lastModifiedDateTime+gt+$closedDateTimeAfter and "
+            }
+
+            if($lastModifiedDateTimeBefore){
+                $closedDateTimeBefore = (Get-Date -Date $closedDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "lastModifiedDateTime+lt+$closedDateTimeBefore and "
+            }
+
+            if ($provider){$body += "vendorInformation/provider+eq+`'$provider`' and "}
+            if ($vendor){$body += "vendorInformation/vendor+eq+`'$vendor`' and "}
+
+            if($Skip){$body += "`$skip=$Skip"}
+            if($orderBy -ne "none"){$body += "`$orderBy=$orderBy"}
+
+
+            $body = $body -replace ' and $', ''
             Write-Verbose "URI Body: $body"
 
             #region ----------------------------API CALL----------------------------
