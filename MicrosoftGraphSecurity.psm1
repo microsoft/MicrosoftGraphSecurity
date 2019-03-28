@@ -11,12 +11,12 @@ Resolve-Path -Path $mypath\Functions\*.ps1 | ForEach-Object -Process {
 
 #----------------------------Exports---------------------------
 # Cmdlets to export (must be exported as functions, not cmdlets) - This array format can be copied directly to the manifest as the 'FunctionsToExport' value
-$ExportedCommands = @('Get-GraphSecurityAlert','Get-GraphSecurityCredential','Get-GraphSecurityAuthToken','Set-GraphSecurityAlert')
+$ExportedCommands = @('Get-GraphSecurityAlert','Get-GraphSecurityCredential','Get-GraphSecurityAuthToken','Get-GraphSecuritySecureScore','Set-GraphSecurityAlert')
 $ExportedCommands | ForEach-Object {Export-ModuleMember -Function $_}
 
 # Vars to export (must be exported here, even if also included in the module manifest in 'VariablesToExport'
-Export-ModuleMember -Variable GSACredential
-Export-ModuleMember -Variable GSAauthToken
+Export-ModuleMember -Variable GraphSecurityCredential
+Export-ModuleMember -Variable GraphSecurityAuthToken
 
 # Aliases to export
 Export-ModuleMember -Alias *

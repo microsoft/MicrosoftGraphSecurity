@@ -40,7 +40,7 @@ function Set-GraphSecurityAlert {
     
         # Specifies the alert id
         [Parameter(Mandatory=$false,ValueFromPipeline=$true)]
-        [string]$Identity,
+        [string]$id,
 
         #Specifies the API Version
         [Parameter(Mandatory=$false)]
@@ -72,12 +72,12 @@ function Set-GraphSecurityAlert {
         [Parameter(Mandatory=$false)]
         [ValidateSet("unknown","truePositive","falsePositive","benignPositive")]
         [string]$feedback,
-        
+
         #Sets the Feedback; 0,1,2,3
         [Parameter(Mandatory=$false)]
         [ValidateSet("unknown","newAlert","inProgress","resolved")]
         [string]$Status,
-        
+
         #Sets any tags
         [Parameter(Mandatory=$false)]
         [string]$Tags
@@ -90,7 +90,7 @@ function Set-GraphSecurityAlert {
         Try {$GraphSecurityNothing = Check-GraphSecurityAuthToken}
             Catch {Throw $_}
 
-        If($Closed -and $Open){ 
+        If($Closed -and $Open){
             Write-Error "You cannot specify open and close parameters at the same time"
             exit
         }
@@ -99,9 +99,8 @@ function Set-GraphSecurityAlert {
     
     Process
     {
-    
-        $Resource = "security/alerts/$Identity"
-    
+        $Resource = "security/alerts/$id"
+        
         if($Version -eq "Beta"){
     
             $uri = "https://graph.microsoft.com/beta/$($resource)"
@@ -165,7 +164,7 @@ function Set-GraphSecurityAlert {
         try {
         
             Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Patch -Body $Body
-        
+
         } 
         
         catch {
