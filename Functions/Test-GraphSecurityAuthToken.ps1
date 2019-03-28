@@ -1,3 +1,17 @@
+<#
+.Synopsis
+   Internal function to test if the current sessions has a Authentication Token for Microsoft Graph Security.
+
+.DESCRIPTION
+   Tests if the current sessions has a Authentication Token for Microsoft Graph Security.
+
+.EXAMPLE
+   Test-GraphSecurityAuthToken
+
+.FUNCTIONALITY
+   Test-GraphSecurityAuthToken is intended as an internal function to test for Authentication Token.
+#>
+
 function Test-GraphSecurityAuthToken {
 
     # Checking if authToken exists before running authentication
@@ -11,6 +25,7 @@ function Test-GraphSecurityAuthToken {
 
         if($TokenExpires -le 0){
 
+            #Token is expired, check for UserName and AppId, and go get a token
             write-warning "Authentication Token expired $TokenExpires minutes ago"
             write-host
 

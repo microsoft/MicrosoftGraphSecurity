@@ -33,10 +33,12 @@
 #>
 
 function Get-GraphSecurityAuthToken {
+    
     [CmdletBinding()]
     
     Param
     (
+    
         # Specifies the password.
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
@@ -67,8 +69,11 @@ function Get-GraphSecurityAuthToken {
     }
 
     if ($AadModule -eq $null) {
+        
         Install-GraphSecurityAADModule
+        
         $AadModule = Get-Module -Name "AzureAD" -ListAvailable
+
     }
 
     # Getting path to ActiveDirectory Assemblies
@@ -86,9 +91,10 @@ function Get-GraphSecurityAuthToken {
 
             $aadModule = $AadModule | Select-Object -Unique
 
-            }
+        }
 
         $adal = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
+        
         $adalforms = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
 
     }
@@ -96,6 +102,7 @@ function Get-GraphSecurityAuthToken {
     else {
 
         $adal = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
+        
         $adalforms = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
 
     }
