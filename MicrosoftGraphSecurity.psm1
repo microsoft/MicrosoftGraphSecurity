@@ -15,8 +15,8 @@ $ExportedCommands = @('Get-GraphSecurityAlert','Get-GraphSecurityCredential','Ge
 $ExportedCommands | ForEach-Object {Export-ModuleMember -Function $_}
 
 # Vars to export (must be exported here, even if also included in the module manifest in 'VariablesToExport'
-Export-ModuleMember -Variable GSACredential
-Export-ModuleMember -Variable GSAauthToken
+Export-ModuleMember -Variable GraphSecurityCredential
+Export-ModuleMember -Variable GraphSecurityAuthToken
 
 # Aliases to export
 Export-ModuleMember -Alias *
