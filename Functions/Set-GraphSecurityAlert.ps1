@@ -5,7 +5,7 @@
 .DESCRIPTION
    Sets the status of alerts in Microsoft Graph Security.
 
-   There are multiple parameter sets:
+   There are multiple parameter:
 
    assignedTo: Used for setting the name of the analyst the alert is assigned to for triage, investigation, or remediation.
    closed: Used to close the alert [default is no]
@@ -31,14 +31,16 @@
    Set-GraphSecurityAlert is intended to function as a mechanism for setting the status of alerts using Microsoft Graph Security.
 #>
 
-function Set-GraphSecurityAlert
-{
+function Set-GraphSecurityAlert {
+
     [CmdletBinding()]
-     Param
+    
+    Param
     (
+    
         # Specifies the alert id
         [Parameter(Mandatory=$false,ValueFromPipeline=$true)]
-        [string]$AlertId,
+        [string]$Identity,
 
         #Specifies the API Version
         [Parameter(Mandatory=$false)]
@@ -79,9 +81,12 @@ function Set-GraphSecurityAlert
         #Sets any tags
         [Parameter(Mandatory=$false)]
         [string]$Tags
+
     )
+    
     Begin
     {
+    
         Try {$GraphSecurityNothing = Check-GraphSecurityAuthToken}
             Catch {Throw $_}
 
@@ -89,19 +94,31 @@ function Set-GraphSecurityAlert
             Write-Error "You cannot specify open and close parameters at the same time"
             exit
         }
+    
     }
+    
     Process
     {
-        $Resource = "security/alerts/$Id"
+    
+        $Resource = "security/alerts/$Identity"
+    
         if($Version -eq "Beta"){
+    
             $uri = "https://graph.microsoft.com/beta/$($resource)"
+    
         }
+    
         Else
         {
+    
             $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
+    
         }
+    
         $alert = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
+    
         $provider = $Alert.vendorInformation.provider
+    
         $Vendor = $Alert.vendorInformation.vendor
 
         #need to build the body https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/alert_update
@@ -114,40 +131,73 @@ function Set-GraphSecurityAlert
 }
 "@
         $objBody = ConvertFrom-Json $baseBody
+        
         if($assignedTo){$objBody | Add-Member -Type NoteProperty -Name 'assignedTo' -Value "$assignedTo"}
+        
         if($Closed){
+        
             $DateTime = (Get-Date -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+        
             $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$DateTime"
+        
         }
+        
         if($closedDateTime){
+        
             $closedDateTime = (Get-Date -Date $closedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+        
             $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value "$closedDateTime"
+        
         }
+        
         if($Open){$objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value $null}
+        
         if($comments){$objBody | Add-Member -Type NoteProperty -Name 'comments' -Value @("$comments")}
+        
         if($feedback){$objBody | Add-Member -Type NoteProperty -Name 'feedback' -Value "$feedback"}
+        
         if($status){$objBody | Add-Member -Type NoteProperty -Name 'status' -Value "$status"}
+        
         if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
+        
         $Body = ConvertTo-Json $objBody -Depth 5
 
         try {
+        
             Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Patch -Body $Body
+        
         } 
+        
         catch {
+        
             $ex = $_.Exception
+        
             $errorResponse = $ex.Response.GetResponseStream()
+        
             $reader = New-Object System.IO.StreamReader($errorResponse)
+        
             $reader.BaseStream.Position = 0
+        
             $reader.DiscardBufferedData()
+        
             $responseBody = $reader.ReadToEnd();
+        
             Write-Host "Response content:`n$responseBody" -f Red
+        
             Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+        
             write-host
+        
             break
+        
         }
+    
     }
+
     End
     {
+    
         #Do Nothing
     }
+
 }

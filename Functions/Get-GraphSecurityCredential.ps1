@@ -46,12 +46,16 @@
 .FUNCTIONALITY
    Get-GraphSecurityCredential is intended to import the username and password into a global session variable to allow Get-GraphSecurityAuthToken to request an authentication token.
 #>
-function Get-GraphSecurityCredential
-{
+
+function Get-GraphSecurityCredential {
+
     [CmdletBinding()]
+
     [OutputType([System.Management.Automation.PSCredential])]
+
     Param
     (
+
         # Specifies the username
         [Parameter(Mandatory=$false)]
         [string]$Username,
@@ -59,9 +63,11 @@ function Get-GraphSecurityCredential
         # Specifies that the credential should be returned into the pipeline for further processing.
         [Parameter(Mandatory=$false)]
         [switch]$PassThru
+
     )
     Process
     {
+
         # If username is specified, prompt for password token and get it all into a global variable
         If ($Username) {
             [System.Management.Automation.PSCredential]$Global:GraphSecurityCredential = Get-Credential -UserName $Username -Message "Enter your AppId in the password box"
@@ -76,5 +82,7 @@ function Get-GraphSecurityCredential
         If ($PassThru) {
             $GraphSecurityCredential
         }
+
     }
+
 }
