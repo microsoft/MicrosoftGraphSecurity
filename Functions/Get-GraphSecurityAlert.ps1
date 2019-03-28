@@ -13,7 +13,7 @@ function Get-GraphSecurityAlert
         # Fetches an activity object by its unique identifier.
         [Parameter(ParameterSetName='Fetch', Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Position=0)]
         [ValidateNotNullOrEmpty()]
-        [string]$Identity,
+        [string]$id,
 
         # Specifies the maximum number of results to retrieve
         [Parameter(ParameterSetName='List', Mandatory=$false)]
@@ -238,7 +238,7 @@ function Get-GraphSecurityAlert
         {
             try {
                 # Fetch the item by its id
-                $resource = "security/alerts/$Identity"
+                $resource = "security/alerts/$id"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
                 $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
                 Write-Verbose "Calling: $uri"
