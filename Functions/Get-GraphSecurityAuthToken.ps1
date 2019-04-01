@@ -33,19 +33,19 @@
 #>
 
 function Get-GraphSecurityAuthToken {
-    
+
     [CmdletBinding()]
-    
+
     Param
     (
-    
+
         # Specifies the password.
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$GraphSecurityCredential
 
     )
-    
+
     Try {$Username = Select-GraphSecurityUsername}
         Catch {Throw $_}
 
@@ -56,22 +56,22 @@ function Get-GraphSecurityAuthToken {
 
     $tenant = $user.Host
 
-    Write-Host "Checking for AzureAD module..."
+    Write-Verbose "Checking for AzureAD module..."
 
     $AadModule = Get-Module -Name "AzureAD" -ListAvailable
 
     if ($AadModule -eq $null) {
 
-        Write-Host "AzureAD PowerShell module not found, looking for AzureADPreview"
+        Write-Verbose "AzureAD PowerShell module not found, looking for AzureADPreview"
 
         $AadModule = Get-Module -Name "AzureADPreview" -ListAvailable
 
     }
 
     if ($AadModule -eq $null) {
-        
+
         Install-GraphSecurityAADModule
-        
+
         $AadModule = Get-Module -Name "AzureAD" -ListAvailable
 
     }
@@ -94,7 +94,7 @@ function Get-GraphSecurityAuthToken {
         }
 
         $adal = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
-        
+
         $adalforms = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
 
     }
@@ -102,7 +102,7 @@ function Get-GraphSecurityAuthToken {
     else {
 
         $adal = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"
-        
+
         $adalforms = Join-Path $AadModule.ModuleBase "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll"
 
     }
@@ -145,9 +145,9 @@ function Get-GraphSecurityAuthToken {
 
         else {
 
-        Write-Host
+
         Write-Warning "Authorization Access Token is null, please re-run authentication..."
-        Write-Host
+
         break
 
         }
@@ -156,9 +156,9 @@ function Get-GraphSecurityAuthToken {
 
     catch {
 
-    write-host $_.Exception.Message -f Red
-    write-host $_.Exception.ItemName -f Red
-    write-host
+    Write-Verbose $_.Exception.Message -f Red
+    Write-Verbose $_.Exception.ItemName -f Red
+
     break
 
     }

@@ -27,7 +27,6 @@ function Test-GraphSecurityAuthToken {
 
             #Token is expired, check for UserName and AppId, and go get a token
             write-warning "Authentication Token expired $TokenExpires minutes ago"
-            write-host
 
             Try {$Username = Select-GraphSecurityUsername}
                 Catch {Throw $_}
@@ -35,12 +34,11 @@ function Test-GraphSecurityAuthToken {
             Try {$AppId = Select-GraphSecurityAppId}
                 Catch {Throw $_}
 
+            write-warning "Refreshing Auth Token"
             Get-GraphSecurityAuthToken
 
-            }
-
-            
         }
+    }
 
 
     # Authentication doesn't exist, calling Get-GSAAuthToken function

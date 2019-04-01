@@ -36,9 +36,9 @@ function Get-GraphSecuritySecureScores {
                 $reader.BaseStream.Position = 0
                 $reader.DiscardBufferedData()
                 $responseBody = $reader.ReadToEnd();
-                Write-Host "Response content:`n$responseBody" -f Red
+                Write-Verbose "Response content:`n$responseBody" -f Red
                 Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-                write-host
+
                 break
             }
         }
