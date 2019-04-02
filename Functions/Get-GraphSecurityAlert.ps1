@@ -361,7 +361,7 @@ function Get-GraphSecurityAlert {
             }
 
             if ($createdDateTimeAfter) {
-                $eventDateTimeAfter = (Get-Date -Date $createdDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $createdDateTimeAfter = (Get-Date -Date $createdDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
                 $body += "createdDateTime+gt+$createdDateTimeAfter and "
             }
 
@@ -381,23 +381,23 @@ function Get-GraphSecurityAlert {
             }
 
             if ($lastModifiedDateTimeAfter) {
-                $closedDateTimeAfter = (Get-Date -Date $closedDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
-                $body += "lastModifiedDateTime+gt+$closedDateTimeAfter and "
+                $lastModifiedDateTimeAfter = (Get-Date -Date $lastModifiedDateTimeAfter -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "lastModifiedDateTime+gt+$lastModifiedDateTimeAfter and "
             }
 
             if ($lastModifiedDateTimeBefore) {
-                $closedDateTimeBefore = (Get-Date -Date $closedDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
-                $body += "lastModifiedDateTime+lt+$closedDateTimeBefore and "
+                $lastModifiedDateTimeBefore = (Get-Date -Date $lastModifiedDateTimeBefore -Format "yyyy-MM-ddTHH:mm:ssZ")
+                $body += "lastModifiedDateTime+lt+$lastModifiedDateTimeBefore and "
             }
 
             if ($provider) {$body += "vendorInformation/provider+eq+`'$provider`' and "}
             if ($vendor) {$body += "vendorInformation/vendor+eq+`'$vendor`' and "}
 
-            if ($Skip) {$body += "`$skip=$Skip"}
-            if ($orderBy -ne "none") {$body += "`$orderBy=$orderBy"}
-
-
             $body = $body -replace ' and $', ''
+
+            if ($Skip) {$body += "&`$skip=$Skip"}Se
+            if ($orderBy -ne "none") {$body += "&`$orderBy=$orderBy"}
+
             Write-Verbose "URI Body: $body"
 
             #region ----------------------------API CALL----------------------------
