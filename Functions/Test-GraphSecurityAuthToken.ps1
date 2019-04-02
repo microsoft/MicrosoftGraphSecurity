@@ -41,7 +41,7 @@ function Test-GraphSecurityAuthToken {
     }
 
 
-    # Authentication doesn't exist, calling Get-GSAAuthToken function
+    # Authentication doesn't exist, calling Get-GraphSecurityAuthToken function
 
     else {
 

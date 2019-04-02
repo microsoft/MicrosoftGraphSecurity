@@ -41,7 +41,7 @@ function Get-GraphSecurityAlert {
         # Fetches an activity object by its unique identifier.
         [Parameter(ParameterSetName = 'Fetch', Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [string]$Identity,
+        [string]$id,
 
         # Specifies the maximum number of results to retrieve
         [Parameter(ParameterSetName = 'List', Mandatory = $false)]
@@ -274,7 +274,7 @@ function Get-GraphSecurityAlert {
         if ($PSCmdlet.ParameterSetName -eq 'Fetch') {
             try {
                 # Fetch the item by its id
-                $resource = "security/alerts/$Identity"
+                $resource = "security/alerts/$id"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)"
                 $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
                 Write-Verbose "Calling: $uri"
@@ -320,6 +320,7 @@ function Get-GraphSecurityAlert {
             if ($sourceMaterials) {$body += "sourceMaterials+eq+`'$sourceMaterials`' and "}
 
             ####### User State Information ######
+
             if ($aadUserId) {$body += "userStates/any(d:d/aadUserId+eq+`'$aadUserId`') and "}
             if ($accountName) {$body += "userStates/any(d:d/accountName+eq+`'$accountName`') and "}
             if ($userPrincipalName) {$body += "userStates/any(d:d/userPrincipalName+eq+`'$userPrincipalName`') and "}
@@ -407,7 +408,6 @@ function Get-GraphSecurityAlert {
                 $resource = "security/alerts/"
                 $uri = "https://graph.microsoft.com/$Version/$($resource)$body"
 
-
                 $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get
 
                 Write-Verbose "Trying List $response"
@@ -419,10 +419,9 @@ function Get-GraphSecurityAlert {
                 $reader.BaseStream.Position = 0
                 $reader.DiscardBufferedData()
                 $responseBody = $reader.ReadToEnd();
-                Write-Verbose "Response content:`n$responseBody" -f Red
+                Write-Verbose "Response content:`n$responseBody"
                 Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
                 break
-
             }
             $response.value
         }

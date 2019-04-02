@@ -15,15 +15,15 @@
    status: Alert lifecycle status (stage). Possible values are: unknown, newAlert, inProgress, resolved.
    tags: User-definable labels that can be applied to an alert and can serve as filter conditions.
 
-   An alert identity is always required to be specified either explicity or implicitly from the pipeline.
+   An alert id is always required to be specified either explicity or implicitly from the pipeline.
 
 .EXAMPLE
-   Set-GraphSecurityAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 -Status resolved -Feedback truePositive
+   Set-GraphSecurityAlert -id D0ED0BD3-AB24-3E05-A4D3-171280CA3CB9 -Status resolved -Feedback truePositive
 
     This marks a single specified alert as 'resolved' and as a 'truePositive'.
 
 .EXAMPLE
-   Get-GraphSecurityAlert -Id D0ED9BD3-AB24-3E05-A4D3-171280CA3CB9 | Set-GraphSecurityAlert -Status inProgress -Assignedto joe@contoso.com
+   Get-GraphSecurityAlert -id D0ED0BD3-AB24-3E05-A4D3-171280CA3CB9 | Set-GraphSecurityAlert -Status inProgress -Assignedto joe@contoso.com
 
     This will set the status of the specified alert as "inProgress" and who is working it "joe@contoso.com".
 
@@ -181,7 +181,7 @@ function Set-GraphSecurityAlert {
 
             $responseBody = $reader.ReadToEnd();
 
-            Write-Verbose "Response content:`n$responseBody" -f Red
+            Write-Verbose "Response content:`n$responseBody"
 
             Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
 

@@ -156,8 +156,8 @@ function Get-GraphSecurityAuthToken {
 
     catch {
 
-    Write-Verbose $_.Exception.Message -f Red
-    Write-Verbose $_.Exception.ItemName -f Red
+    Write-Verbose $_.Exception.Message
+    Write-Verbose $_.Exception.ItemName
 
     break
 
