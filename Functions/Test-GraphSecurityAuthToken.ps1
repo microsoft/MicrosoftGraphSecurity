@@ -15,7 +15,7 @@
 function Test-GraphSecurityAuthToken {
 
     # Checking if authToken exists before running authentication
-    if($global:GraphSecurityauthHeader){
+    if ($global:GraphSecurityauthHeader) {
 
         # Setting DateTime to Universal time to work in all timezones
         $DateTime = (Get-Date).ToUniversalTime()
@@ -23,18 +23,18 @@ function Test-GraphSecurityAuthToken {
         # If the authToken exists checking when it expires
         $TokenExpires = ($GraphSecurityauthHeader.ExpiresOn.datetime - $DateTime).Minutes
 
-        if($TokenExpires -le 0){
+        if ($TokenExpires -le 0) {
 
             #Token is expired, check for UserName and AppId, and go get a token
-            write-warning "Authentication Token expired $TokenExpires minutes ago"
+            Write-Warning "Authentication Token expired $TokenExpires minutes ago"
 
-            Try {$Username = Select-GraphSecurityUsername}
-                Catch {Throw $_}
+            Try { $Username = Select-GraphSecurityUsername }
+            Catch { Throw $_ }
 
-            Try {$AppId = Select-GraphSecurityAppId}
-                Catch {Throw $_}
+            Try { $AppId = Select-GraphSecurityAppId }
+            Catch { Throw $_ }
 
-            write-warning "Refreshing Auth Token"
+            Write-Warning "Refreshing Auth Token"
             Get-GraphSecurityAuthToken
 
         }
@@ -45,15 +45,15 @@ function Test-GraphSecurityAuthToken {
 
     else {
 
-            Try {$Username = Select-GraphSecurityUsername}
-                Catch {Throw $_}
+        Try { $Username = Select-GraphSecurityUsername }
+        Catch { Throw $_ }
 
-            Try {$AppId = Select-GraphSecurityAppId}
-                Catch {Throw $_}
+        Try { $AppId = Select-GraphSecurityAppId }
+        Catch { Throw $_ }
 
-            Get-GraphSecurityAuthToken
-
-        }
-
+        Get-GraphSecurityAuthToken
 
     }
+
+
+}

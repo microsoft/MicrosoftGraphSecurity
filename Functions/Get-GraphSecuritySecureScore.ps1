@@ -29,21 +29,21 @@ function Get-GraphSecuritySecureScore {
         [string]$Version = "beta"
     )
     Begin {
-        Try {Test-GraphSecurityAuthToken}
-        Catch {Throw $_}
+        Try { Test-GraphSecurityAuthToken }
+        Catch { Throw $_ }
     }
     Process {
         if ($Version -eq "beta") {
             $Resource = "security/secureScores?`$top=$top"
             try {
-            if($Version -eq "beta"){
-                $uri = "https://graph.microsoft.com/$Version/$($resource)"
-            }
-            Else{
-                #$uri = "https://graph.microsoft.com/$Version.0/$($resource)"
-                Write-Error "Secure Score is not yet implemented in v1.0 API"
-                break
-            }
+                if ($Version -eq "beta") {
+                    $uri = "https://graph.microsoft.com/$Version/$($resource)"
+                }
+                Else {
+                    #$uri = "https://graph.microsoft.com/$Version.0/$($resource)"
+                    Write-Error "Secure Score is not yet implemented in v1.0 API"
+                    break
+                }
                 (Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method Get).value
             }
             catch {

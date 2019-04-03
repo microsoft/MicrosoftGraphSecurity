@@ -39,76 +39,73 @@ function Set-GraphSecurityAlert {
     (
 
         # Specifies the alert id
-        [Parameter(Mandatory=$false,ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
         [string]$id,
 
         #Specifies the API Version
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("v1","Beta")]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("v1", "Beta")]
         [string]$Version = "v1",
 
         #Sets the owner of the alert
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidatePattern("[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*")]
         [string]$assignedTo,
 
         #sets the alert to closed
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch]$Closed,
 
         #sets the alert to open
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch]$Open,
 
         #Sets the close time
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [datetime]$closedDateTime,
 
         #Sets any comments
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$comments,
 
         #Sets the Feedback; 0,1,2,3
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("unknown","truePositive","falsePositive","benignPositive")]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("unknown", "truePositive", "falsePositive", "benignPositive")]
         [string]$feedback,
 
         #Sets the Feedback; 0,1,2,3
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("unknown","newAlert","inProgress","resolved")]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("unknown", "newAlert", "inProgress", "resolved")]
         [string]$Status,
 
         #Sets any tags
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Tags
 
     )
 
-    Begin
-    {
+    Begin {
 
-        Try {$GraphSecurityNothing = Test-GraphSecurityAuthToken}
-            Catch {Throw $_}
+        Try {Test-GraphSecurityAuthToken }
+        Catch { Throw $_ }
 
-        If($Closed -and $Open){
+        If ($Closed -and $Open) {
             Write-Error "You cannot specify open and close parameters at the same time"
             exit
         }
 
     }
 
-    Process
-    {
+    Process {
         $Resource = "security/alerts/$id"
 
-        if($Version -eq "Beta"){
+        if ($Version -eq "Beta") {
 
             $uri = "https://graph.microsoft.com/beta/$($resource)"
 
         }
 
-        Else
-        {
+        Else {
 
             $uri = "https://graph.microsoft.com/$Version.0/$($resource)"
 
@@ -131,9 +128,9 @@ function Set-GraphSecurityAlert {
 "@
         $objBody = ConvertFrom-Json $baseBody
 
-        if($assignedTo){$objBody | Add-Member -Type NoteProperty -Name 'assignedTo' -Value "$assignedTo"}
+        if ($assignedTo) { $objBody | Add-Member -Type NoteProperty -Name 'assignedTo' -Value "$assignedTo" }
 
-        if($Closed){
+        if ($Closed) {
 
             $DateTime = (Get-Date -UFormat '+%Y-%m-%dT%H:%M:%SZ')
 
@@ -141,7 +138,7 @@ function Set-GraphSecurityAlert {
 
         }
 
-        if($closedDateTime){
+        if ($closedDateTime) {
 
             $closedDateTime = (Get-Date -Date $closedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
 
@@ -149,15 +146,15 @@ function Set-GraphSecurityAlert {
 
         }
 
-        if($Open){$objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value $null}
+        if ($Open) { $objBody | Add-Member -Type NoteProperty -Name 'closedDateTime' -Value $null }
 
-        if($comments){$objBody | Add-Member -Type NoteProperty -Name 'comments' -Value @("$comments")}
+        if ($comments) { $objBody | Add-Member -Type NoteProperty -Name 'comments' -Value @("$comments") }
 
-        if($feedback){$objBody | Add-Member -Type NoteProperty -Name 'feedback' -Value "$feedback"}
+        if ($feedback) { $objBody | Add-Member -Type NoteProperty -Name 'feedback' -Value "$feedback" }
 
-        if($status){$objBody | Add-Member -Type NoteProperty -Name 'status' -Value "$status"}
+        if ($status) { $objBody | Add-Member -Type NoteProperty -Name 'status' -Value "$status" }
 
-        if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
+        if ($tags) { $objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags") }
 
         $Body = ConvertTo-Json $objBody -Depth 5
 
@@ -193,8 +190,7 @@ function Set-GraphSecurityAlert {
 
     }
 
-    End
-    {
+    End {
 
         #Do Nothing
     }

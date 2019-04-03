@@ -57,25 +57,24 @@ function Get-GraphSecurityCredential {
     (
 
         # Specifies the username
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Username,
 
         # Specifies that the credential should be returned into the pipeline for further processing.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch]$PassThru
 
     )
-    Process
-    {
+    Process {
 
         # If username is specified, prompt for password token and get it all into a global variable
         If ($Username) {
-            [System.Management.Automation.PSCredential]$Global:GraphSecurityCredential = Get-Credential -UserName $Username -Message "Enter your AppId in the password box"
+            [System.Management.Automation.PSCredential]$global:GraphSecurityCredential = Get-Credential -UserName $Username -Message "Enter your AppId in the password box"
         }
 
         # Else, prompt for both the username and password and get it all into a global variable
         Else {
-            [System.Management.Automation.PSCredential]$Global:GraphSecurityCredential = Get-Credential -Message "Enter your username and AppId"
+            [System.Management.Automation.PSCredential]$global:GraphSecurityCredential = Get-Credential -Message "Enter your username and AppId"
         }
 
         # If -PassThru is specified, write the credential object to the pipeline (the global variable will also be exported to the calling session with Export-ModuleMember)
