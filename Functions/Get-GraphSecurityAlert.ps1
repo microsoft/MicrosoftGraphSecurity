@@ -153,7 +153,7 @@ function Get-GraphSecurityAlert {
         # Alert title. Required.
         [Parameter(ParameterSetName = 'List', Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript( {$_.Length -ge 5})]
+        [ValidateScript( { $_.Length -ge 5 })]
         [string]$title,
 
         ####### Vendor Information ######
@@ -266,8 +266,8 @@ function Get-GraphSecurityAlert {
     )
 
     Begin {
-        Try {Test-GraphSecurityAuthToken}
-        Catch {Throw $_}
+        Try { Test-GraphSecurityAuthToken }
+        Catch { Throw $_ }
     }
     Process {
         # Fetch mode should happen once for each item from the pipeline, so it goes in the 'Process' block
@@ -305,26 +305,26 @@ function Get-GraphSecurityAlert {
 
             # Simple filters
 
-            if ($category) {$body += "`category+eq+`'$category`' and "}
-            if ($severity -ne "none") {$body += "severity+eq+`'$severity`' and "}
-            if ($status -ne "none") {$body += "status+eq+`'$status`' and "}
-            if ($title) {$body += "title+eq+`'$title`' and "}
-            if ($azureTenantId) {$body += "azureTenantId+eq+`'$azureTenantId`' and "}
-            if ($riskScore) {$body += "riskScore+eq+`'$riskScore`' and "}
-            if ($tags) {$body += "tags+eq+`'$tags`' and "}
-            if ($azureSubscriptionId) {$body += "azureSubscriptionId+eq+`'$azureSubscriptionId`' and "}
-            if ($activityGroupName) {$body += "activityGroupName+eq+`'$activityGroupName`' and "}
-            if ($assignedTo) {$body += "assignedTo+eq+`'$assignedTo`' and "}
-            if ($confidence) {$body += "confidence+eq+`'$confidence`' and "}
-            if ($detectionIds) {$body += "detectionIds+eq+`'$detectionIds`' and "}
-            if ($sourceMaterials) {$body += "sourceMaterials+eq+`'$sourceMaterials`' and "}
+            if ($category) { $body += "`category+eq+`'$category`' and " }
+            if ($severity -ne "none") { $body += "severity+eq+`'$severity`' and " }
+            if ($status -ne "none") { $body += "status+eq+`'$status`' and " }
+            if ($title) { $body += "title+eq+`'$title`' and " }
+            if ($azureTenantId) { $body += "azureTenantId+eq+`'$azureTenantId`' and " }
+            if ($riskScore) { $body += "riskScore+eq+`'$riskScore`' and " }
+            if ($tags) { $body += "tags+eq+`'$tags`' and " }
+            if ($azureSubscriptionId) { $body += "azureSubscriptionId+eq+`'$azureSubscriptionId`' and " }
+            if ($activityGroupName) { $body += "activityGroupName+eq+`'$activityGroupName`' and " }
+            if ($assignedTo) { $body += "assignedTo+eq+`'$assignedTo`' and " }
+            if ($confidence) { $body += "confidence+eq+`'$confidence`' and " }
+            if ($detectionIds) { $body += "detectionIds+eq+`'$detectionIds`' and " }
+            if ($sourceMaterials) { $body += "sourceMaterials+eq+`'$sourceMaterials`' and " }
 
             ####### User State Information ######
 
-            if ($aadUserId) {$body += "userStates/any(d:d/aadUserId+eq+`'$aadUserId`') and "}
-            if ($accountName) {$body += "userStates/any(d:d/accountName+eq+`'$accountName`') and "}
-            if ($userPrincipalName) {$body += "userStates/any(d:d/userPrincipalName+eq+`'$userPrincipalName`') and "}
-            if ($domainName) {$body += "userStates/any(d:d/domainName+eq+`'$domainName`') and "}
+            if ($aadUserId) { $body += "userStates/any(d:d/aadUserId+eq+`'$aadUserId`') and " }
+            if ($accountName) { $body += "userStates/any(d:d/accountName+eq+`'$accountName`') and " }
+            if ($userPrincipalName) { $body += "userStates/any(d:d/userPrincipalName+eq+`'$userPrincipalName`') and " }
+            if ($domainName) { $body += "userStates/any(d:d/domainName+eq+`'$domainName`') and " }
 
 
             <# Needs further testing, omitted for release 1.0
@@ -390,13 +390,13 @@ function Get-GraphSecurityAlert {
                 $body += "lastModifiedDateTime+lt+$lastModifiedDateTimeBefore and "
             }
 
-            if ($provider) {$body += "vendorInformation/provider+eq+`'$provider`' and "}
-            if ($vendor) {$body += "vendorInformation/vendor+eq+`'$vendor`' and "}
+            if ($provider) { $body += "vendorInformation/provider+eq+`'$provider`' and " }
+            if ($vendor) { $body += "vendorInformation/vendor+eq+`'$vendor`' and " }
 
             $body = $body -replace ' and $', ''
 
-            if ($Skip) {$body += "&`$skip=$Skip"}Se
-            if ($orderBy -ne "none") {$body += "&`$orderBy=$orderBy"}
+            if ($Skip) { $body += "&`$skip=$Skip" }
+            if ($orderBy -ne "none") { $body += "&`$orderBy=$orderBy" }
 
             Write-Verbose "URI Body: $body"
 

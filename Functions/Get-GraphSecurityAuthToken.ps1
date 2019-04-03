@@ -40,17 +40,17 @@ function Get-GraphSecurityAuthToken {
     (
 
         # Specifies the password.
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$GraphSecurityCredential
 
     )
 
-    Try {$Username = Select-GraphSecurityUsername}
-        Catch {Throw $_}
+    Try { $Username = Select-GraphSecurityUsername }
+    Catch { Throw $_ }
 
-    Try {$AppId = Select-GraphSecurityAppId}
-        Catch {Throw $_}
+    Try { $AppId = Select-GraphSecurityAppId }
+    Catch { Throw $_ }
 
     $user = New-Object "System.Net.Mail.MailAddress" -ArgumentList $Username
 
@@ -60,7 +60,7 @@ function Get-GraphSecurityAuthToken {
 
     $AadModule = Get-Module -Name "AzureAD" -ListAvailable
 
-    if ($AadModule -eq $null) {
+    if ($null -eq $AadModule) {
 
         Write-Verbose "AzureAD PowerShell module not found, looking for AzureADPreview"
 
@@ -68,7 +68,7 @@ function Get-GraphSecurityAuthToken {
 
     }
 
-    if ($AadModule -eq $null) {
+    if ($null -eq $AadModule) {
 
         Install-GraphSecurityAADModule
 
@@ -79,15 +79,15 @@ function Get-GraphSecurityAuthToken {
     # Getting path to ActiveDirectory Assemblies
     # If the module count is greater than 1 find the latest version
 
-    if($AadModule.count -gt 1){
+    if ($AadModule.count -gt 1) {
 
-        $Latest_Version = ($AadModule | select version | Sort-Object)[-1]
+        $Latest_Version = ($AadModule | Select-Object version | Sort-Object)[-1]
 
-        $aadModule = $AadModule | ? { $_.version -eq $Latest_Version.version }
+        $aadModule = $AadModule | Where-Object { $_.version -eq $Latest_Version.version }
 
-            # Checking if there are multiple versions of the same module found
+        # Checking if there are multiple versions of the same module found
 
-            if($AadModule.count -gt 1){
+        if ($AadModule.count -gt 1) {
 
             $aadModule = $AadModule | Select-Object -Unique
 
@@ -128,17 +128,17 @@ function Get-GraphSecurityAuthToken {
 
         $userId = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier" -ArgumentList ($Username, "OptionalDisplayableId")
 
-        $authResult = $authContext.AcquireTokenAsync($resourceAppIdURI,$AppId,$redirectUri,$platformParameters,$userId).Result
+        $authResult = $authContext.AcquireTokenAsync($resourceAppIdURI, $AppId, $redirectUri, $platformParameters, $userId).Result
 
-        if($authResult.AccessToken){
+        if ($authResult.AccessToken) {
 
-        # Creating header for Authorization token
+            # Creating header for Authorization token
 
-        $Global:GraphSecurityauthHeader = @{
-            'Content-Type'='application/json'
-            'Authorization'="Bearer " + $authResult.AccessToken
-            'ExpiresOn'=$authResult.ExpiresOn
-            'Prefer'='return=representation'
+            $global:GraphSecurityAuthHeader = @{
+                'Content-Type'  = 'application/json'
+                'Authorization' = "Bearer " + $authResult.AccessToken
+                'ExpiresOn'     = $authResult.ExpiresOn
+                'Prefer'        = 'return=representation'
             }
 
         }
@@ -146,9 +146,9 @@ function Get-GraphSecurityAuthToken {
         else {
 
 
-        Write-Warning "Authorization Access Token is null, please re-run authentication..."
+            Write-Warning "Authorization Access Token is null, please re-run authentication..."
 
-        break
+            break
 
         }
 
@@ -156,10 +156,10 @@ function Get-GraphSecurityAuthToken {
 
     catch {
 
-    Write-Verbose $_.Exception.Message
-    Write-Verbose $_.Exception.ItemName
+        Write-Verbose $_.Exception.Message
+        Write-Verbose $_.Exception.ItemName
 
-    break
+        break
 
     }
 
