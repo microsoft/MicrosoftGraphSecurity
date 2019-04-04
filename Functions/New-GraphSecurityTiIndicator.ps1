@@ -101,7 +101,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'File', Mandatory = $false)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$killChain,
+        [string]$killChain,
 
         # Scenarios in which the indicator may cause false positives. This should be human-readable text.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false)]
@@ -164,7 +164,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'File', Mandatory = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $true)]
         [ValidateSet("unknown", "white", "green", "amber", "red")]
-        [string]$tlpLevel
+        [string]$tlpLevel,
 
         # Email observables
         # The type of text encoding used in the email.
@@ -277,7 +277,7 @@ function New-GraphSecurityTiIndicator {
         # The destination autonomous system identifier of the network referenced 
         [Parameter(ParameterSetName = 'Network', Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [Int32]]$networkDestinationAsn,
+        [Int32]$networkDestinationAsn,
 
         # CIDR Block notation representation of the destination network
         [Parameter(ParameterSetName = 'Network', Mandatory = $false)]
@@ -368,13 +368,113 @@ function New-GraphSecurityTiIndicator {
         }
     }
     Process {
-        #code for check if default param set
         
+        $baseBody = @"
+{
+
+}
+"@
+        $objBody = ConvertFrom-Json $baseBody
+
+        #Base Properties
+        if($action){$objBody | Add-Member -Type NoteProperty -Name 'action' -Value "$action"}
+        if($activityGroupNames){$objBody | Add-Member -Type NoteProperty -Name 'activityGroupNames' -Value @("$activityGroupNames")}
+        if($additionalInformation){$objBody | Add-Member -Type NoteProperty -Name 'additionalInformation' -Value "$additionalInformation"}
+        if($confidence){$objBody | Add-Member -Type NoteProperty -Name 'confidence' $confidence}
+        if($description){$objBody | Add-Member -Type NoteProperty -Name 'description' -Value "$description"}
+        if($diamondModel){$objBody | Add-Member -Type NoteProperty -Name 'diamondModel' -Value "$diamondModel"}
+        if($expirationDateTime){
+            $expirationDateTime = (Get-Date -Date $expirationDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+            $daysCheck = (New-TimeSpan $expirationDateTime ((Get-Date).AddDays(30))
+            if($daysCheck -gt 30){
+                Write-Error "You can not enter more than 30 days in the future"
+                break
+            }
+            $objBody | Add-Member -Type NoteProperty -Name 'expirationDateTime' -Value "$expirationDateTime"
+        }
+        if($externalId){$objBody | Add-Member -Type NoteProperty -Name 'externalId' -Value "$externalId"}
+        if($isActive){$objBody | Add-Member -Type NoteProperty -Name 'isActive' $isActive}
+        if($killChain){$objBody | Add-Member -Type NoteProperty -Name 'killChain' -Value @("$killChain")}
+        if($knownFalsePositives){$objBody | Add-Member -Type NoteProperty -Name 'knownFalsePositives' -Value "$knownFalsePositives"}
+        if($lastReportedDateTime){
+            $lastReportedDateTime = (Get-Date -Date $lastReportedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+            $objBody | Add-Member -Type NoteProperty -Name 'lastReportedDateTime' -Value "$lastReportedDateTime"
+        }
+        if($malwareFamilyNames){$objBody | Add-Member -Type NoteProperty -Name 'malwareFamilyNames' -Value @("$malwareFamilyNames")}
+        if($passiveOnly){$objBody | Add-Member -Type NoteProperty -Name 'passiveOnly' $passiveOnly}
+        if($severity){$objBody | Add-Member -Type NoteProperty -Name 'severity' $severity}
+        if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
+        if($targetProduct){$objBody | Add-Member -Type NoteProperty -Name 'targetProduct' -Value "$targetProduct"}
+        if($threatType){$objBody | Add-Member -Type NoteProperty -Name 'threatType' -Value "$threatType"}
+        if($tlpLevel){$objBody | Add-Member -Type NoteProperty -Name 'tlpLevel' -Value "$tlpLevel"}
+
+        if($PSCmdlet.ParameterSetName -eq "Email") {
+            # Email observables
+            if($emailLanguage){$objBody | Add-Member -Type NoteProperty -Name 'emailLanguage' -Value "$emailLanguage"}
+            if($emailRecipient){$objBody | Add-Member -Type NoteProperty -Name 'emailRecipient' -Value "$emailRecipient"}
+            if($emailSenderAddress){$objBody | Add-Member -Type NoteProperty -Name 'emailSenderAddress' -Value "$emailSenderAddress"}
+            if($emailSenderName){$objBody | Add-Member -Type NoteProperty -Name 'emailSenderName' -Value "$emailSenderName"}
+            if($emailSourceDomain){$objBody | Add-Member -Type NoteProperty -Name 'emailSourceDomain' -Value "$emailSourceDomain"}
+            if($emailSourceIpAddress){$objBody | Add-Member -Type NoteProperty -Name 'emailSourceIpAddress' -Value "$emailSourceIpAddress"}
+            if($emailSubject){$objBody | Add-Member -Type NoteProperty -Name 'emailSubject' -Value "$emailSubject"}
+            if($emailXMailer){$objBody | Add-Member -Type NoteProperty -Name 'emailXMailer' -Value "$emailXMailer"}
+        }
+
+        if($PSCmdlet.ParameterSetName -eq "File") {
+            # File Observables
+            if($fileCompileDateTime){
+                $fileCompileDateTime = (Get-Date -Date $fileCompileDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+                $objBody | Add-Member -Type NoteProperty -Name 'fileCompileDateTime' -Value "$fileCompileDateTime"
+            }
+            if($fileCreatedDateTime){
+                $fileCreatedDateTime = (Get-Date -Date $fileCreatedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
+                $objBody | Add-Member -Type NoteProperty -Name 'fileCreatedDateTime' -Value "$fileCreatedDateTime"
+            }
+            if($fileHashType -and $fileHashValue){
+                if($fileHashType){$objBody | Add-Member -Type NoteProperty -Name 'fileHashType' -Value "$fileHashType"}
+                if($fileHashValue){$objBody | Add-Member -Type NoteProperty -Name 'fileHashValue' -Value "$fileHashValue"}
+            }
+            Else{
+                Write-Error "fileHashType and fileHashValue are required together"
+                break
+            }
+            if($fileMutexName){$objBody | Add-Member -Type NoteProperty -Name 'fileMutexName' -Value "$fileMutexName"}
+            if($fileName){$objBody | Add-Member -Type NoteProperty -Name 'fileName' -Value "$fileName"}
+            if($filePacker){$objBody | Add-Member -Type NoteProperty -Name 'filePacker' -Value "$filePacker"}
+            if($filePath){$objBody | Add-Member -Type NoteProperty -Name 'filePath' -Value "$filePath"}
+            if($fileSize){$objBody | Add-Member -Type NoteProperty -Name 'fileSize' $fileSize}
+            if($fileType){$objBody | Add-Member -Type NoteProperty -Name 'fileType' -Value "$fileType"}
+        }
+
+        if($PSCmdlet.ParameterSetName -eq "Network") {
+            # Network Observables
+            if($domainName){$objBody | Add-Member -Type NoteProperty -Name 'domainName' -Value "$domainName"}
+            if($networkCidrBlock){$objBody | Add-Member -Type NoteProperty -Name 'networkCidrBlock' -Value "$networkCidrBlock"}
+            if($networkDestinationAsn){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationAsn' $networkDestinationAsn}
+            if($networkDestinationCidrBlock){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationCidrBlock' -Value "$networkDestinationCidrBlock"}
+            if($networkDestinationIPv4){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationIPv4' -Value "$networkDestinationIPv4"}
+            if($networkDestinationIPv6){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationIPv6' -Value "$networkDestinationIPv6"}
+            if($networkDestinationPort){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationPort' $networkDestinationPort}
+            if($networkIPv4){$objBody | Add-Member -Type NoteProperty -Name 'networkIPv4' -Value "$networkIPv4"}
+            if($networkIPv6){$objBody | Add-Member -Type NoteProperty -Name 'networkIPv6' -Value "$networkIPv6"}
+            if($networkPort){$objBody | Add-Member -Type NoteProperty -Name 'networkPort' $networkPort}
+            if($networkProtocol){$objBody | Add-Member -Type NoteProperty -Name 'networkProtocol' $networkProtocol}
+            if($networkSourceAsn){$objBody | Add-Member -Type NoteProperty -Name 'networkSourceAsn' $networkSourceAsn}
+            if($networkSourceCidrBlock){$objBody | Add-Member -Type NoteProperty -Name 'networkSourceCidrBlock' -Value "$networkSourceCidrBlock"}
+            if($networkSourceIPv4){$objBody | Add-Member -Type NoteProperty -Name 'networkSourceIPv4' -Value "$networkSourceIPv4"}
+            if($networkSourceIPv6){$objBody | Add-Member -Type NoteProperty -Name 'networkSourceIPv6' -Value "$networkSourceIPv6"}
+            if($networkSourcePort){$objBody | Add-Member -Type NoteProperty -Name 'networkSourcePort' $networkSourcePort}
+            if($url){$objBody | Add-Member -Type NoteProperty -Name 'url' -Value "$url"}
+            if($userAgent){$objBody | Add-Member -Type NoteProperty -Name 'userAgent' -Value "$userAgent"}
+        }
+        $Body = ConvertTo-Json $objBody -Depth 5
+        Write-Verbose $Body
+
         try {
             # Fetch the item by its id
             $resource = "security/tiIndicators"
             $uri = "https://graph.microsoft.com/$Version/$($resource)"
-            $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method POST
+            $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method POST -Body $Body
             Write-Verbose "Calling: $uri"
         }
         catch {
