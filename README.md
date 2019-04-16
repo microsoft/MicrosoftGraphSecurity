@@ -15,7 +15,17 @@ To get value from this module you must...
 
 ...have PowerShell v5+ (comes standard on Windows 10)
 
-...have configured authorization for acess.  See [Authorization and the Microsoft Graph Security API](https://docs.microsoft.com/en-us/graph/security-authorization)
+...have configured authorization for access by registering an application.  See [Authorization and the Microsoft Graph Security API](https://docs.microsoft.com/en-us/graph/security-authorization#register-an-application-in-the-azure-ad-v20-endpoint)
+
+### App Registration Settings
+
+Register an application with Azure AD with the following
+-  **Authentication** 
+     - Select the Suggested Redirect URI to be `urn:ietf:wg:oauth:2.0:oob` 
+     - Select Implicit grant issued by the authorization endpoint `Access Tokens`
+-  **API Permissions** 
+      - Add Microsoft Graph Delegated Permissions `SecurityEvents.Read.Al`l and/or `SecurityEvents.ReadWrite.All`
+
 
 ## Getting Started
 
