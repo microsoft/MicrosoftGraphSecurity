@@ -74,6 +74,7 @@ function Get-GraphSecurityAuthToken {
 
         $AadModule = Get-Module -Name "AzureAD" -ListAvailable
 
+
     }
 
     # Getting path to ActiveDirectory Assemblies
