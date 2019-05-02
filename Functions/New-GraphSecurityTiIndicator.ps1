@@ -44,14 +44,14 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$activityGroupNames,
 
         # A catchall area into which extra data from the indicator not covered by the other tiIndicator properties
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$additionalInformation,
 
         # An integer representing the confidence the data within the indicator accurately identifies malicious behavior. Acceptable values are 0 – 100 with 100 being the highest.
@@ -65,7 +65,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$description,
 
         # he area of the Diamond Model in which this indicator exists.
@@ -79,14 +79,14 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$expirationDateTime,
 
         # An identification number that ties the indicator back to the indicator provider’s system (e.g. a foreign key).
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$externalId,
 
         # Used to deactivate indicators within system.
@@ -100,34 +100,35 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$killChain,
 
         # Scenarios in which the indicator may cause false positives. This should be human-readable text.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$knownFalsePositives,
 
         # The last time the indicator was seen.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$lastReportedDateTime,
 
         # The malware family name associated with an indicator if it exists.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$malwareFamilyNames,
 
         # Determines if the indicator should trigger an event that is visible to an end-user.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        #[ValidateScript({[System.Convert]::ToBoolean($_)})]
         [ValidateSet($true, $false)]
         [boolean]$passiveOnly,
 
@@ -142,7 +143,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$tags,
 
         # Target product for the TI indicator
@@ -169,58 +170,58 @@ function New-GraphSecurityTiIndicator {
         # Email observables
         # The type of text encoding used in the email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailEncoding,
 
         # The language of the email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailLanguage,
 
 	    # Recipient email address.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailRecipient,
 
         # Email address of the attacker|victim.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailSenderAddress,
 
         # Displayed name of the attacker|victim.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailSenderName,
 	    
         # Domain used in the email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailSourceDomain,
 
 	    # Source IP address of email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailSourceIpAddress,
 
         # Subject line of email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailSubject,
         
         # X-Mailer value used in the email.
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$emailXMailer,
 
         # File Observables
         # DateTime when the file was compiled.
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileCompileDateTime,
 
         #DateTime when the file was created.
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileCreatedDateTime,
 
         # The type of hash stored in fileHashValue
@@ -230,128 +231,128 @@ function New-GraphSecurityTiIndicator {
         
         # The file hash value.
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileHashValue,
 
         # Mutex name used in file-based detections
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileMutexName,
 
         # Name of the file if the indicator is file-based
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileName,
 
         # The packer used to build the file in question.
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$filePacker, 
 
         # Path of file indicating compromise. May be a Windows or *nix style path
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$filePath,
 
         # Size of the file in bytes
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [int64]$fileSize,
 
         # Text description of the type of file.
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$fileType,
 
         # Network Observables
         # Domain name associated with this indicator.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$domainName,
 
         # CIDR Block notation representation of the network referenced
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkCidrBlock,
 
         # The destination autonomous system identifier of the network referenced 
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [Int32]$networkDestinationAsn,
 
         # CIDR Block notation representation of the destination network
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkDestinationCidrBlock,
 
         # IPv4 IP address destination.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkDestinationIPv4,
 
         # IPv6 IP address destination.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkDestinationIPv6,
 
         # TCP port destination. 
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [Int32]$networkDestinationPort,
 
         # IPv4 IP address.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkIPv4,
 
         # IPv6 IP address.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkIPv6,
 
         # TCP port
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [int32]$networkPort,
 
         # Decimal representation of the protocol field in the IPv4 header.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [int32]$networkProtocol, 
 
         # The source autonomous system identifier of the network referenced
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [Int32]$networkSourceAsn,
 
         # CIDR Block notation representation of the source network
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkSourceCidrBlock,
 
         # IPv4 IP Address source.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkSourceIPv4,
 
         # IPv6 IP Address source.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$networkSourceIPv6,
 
         # TCP port source.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [Int32]$networkSourcePort,
 
         #Uniform Resource Locator. This URL must comply with RFC 1738.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$url,
 
         # User-Agent string from a web request that could indicate compromise.
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [string]$userAgent
 
     )
@@ -386,7 +387,7 @@ function New-GraphSecurityTiIndicator {
         if($expirationDateTime){
             $expirationDateTime = (Get-Date -Date $expirationDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
             $daysCheck =    New-TimeSpan $expirationDateTime ((Get-Date).AddDays(30))
-            if($daysCheck -gt 30){
+            if($daysCheck.Days -gt 30){
                 Write-Error "You can not enter more than 30 days in the future"
                 break
             }
@@ -474,7 +475,7 @@ function New-GraphSecurityTiIndicator {
             # Fetch the item by its id
             $resource = "security/tiIndicators"
             $uri = "https://graph.microsoft.com/$Version/$($resource)"
-            #$response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method POST -Body $Body
+            $response = Invoke-RestMethod -Uri $uri -Headers $GraphSecurityAuthHeader -Method POST -Body $Body
             Write-Verbose "Calling: $uri"
         }
         catch {

@@ -33,8 +33,8 @@ function Get-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Default', Mandatory = $false)]
         [Parameter(ParameterSetName = 'Fetch', Mandatory = $false)]
         [Parameter(ParameterSetName = 'List', Mandatory = $false)]
-        [ValidateSet("v1.0", "Beta")]
-        [string]$Version = "Beta",
+        [ValidateSet("v1.0", "beta")]
+        [string]$Version = "beta",
 
         # Fetches an TI indicator object by its unique identifier.
         [Parameter(ParameterSetName = 'Fetch', Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
