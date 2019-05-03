@@ -15,9 +15,10 @@
     This will create a new indicator to block based on file hash and expires 01/01/2020.
 
 .EXAMPLE
-   (Import-Csv tiIndicators.csv) | New-GraphSecurityTiIndicator
+   $Data = Import-Csv .\email.csv | Select Action,ActivityGroupNames,AdditionalInformation,Description,DiamondModel,ExpirationDateTime,ExternalIndicatorId,KillChain,KnownfalsePositives,MalwareNames,Tags,TargetProduct,ThreatType,tlpLevel,EmailEncoding,EmailLanguage,EmailRecipient,EmailSenderAddress,EmailSenderName,EmailSourceDomain,EmailSourceIpAddress,EmailSubject,EmailXMailer,@{Name="passiveOnly"; Expression={[boolean]$_.passiveOnly}},@{Name="isActive"; Expression={[boolean]$_.isActive}},@{Name="Confidence"; Expression={[int32]$_.Confidence}},@{Name="Severity"; Expression={[int32]$_.Severity}}
+   $Data | New-GraphSecurityTiIndicator
 
-    This will create a new indicator for each item in the CSV.  The CSV must have the required properties that match the API property names.
+    This will create a new indicator for each item in the CSV.  The CSV must have the required properties that match the API property names.  Since CSV import treats every item as a string, you must import to vairable and cast the correct type.
 
 .FUNCTIONALITY
    New-GraphSecurityTiIndicator is intended to function as a mechanism for creating TI Indicators using Microsoft Graph Security.
@@ -128,7 +129,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
-        #[ValidateScript({[System.Convert]::ToBoolean($_)})]
+        #[ValidateScript({$passiveOnly =  [System.Convert]::ToInt32($_)})]
         [ValidateSet($true, $false)]
         [boolean]$passiveOnly,
 
@@ -379,7 +380,7 @@ function New-GraphSecurityTiIndicator {
 
         #Base Properties
         if($action){$objBody | Add-Member -Type NoteProperty -Name 'action' -Value "$action"}
-        if($activityGroupNames){$objBody | Add-Member -Type NoteProperty -Name 'activityGroupNames' -Value @("$activityGroupNames")}
+        if($activityGroupNames){$objBody | Add-Member -Type NoteProperty -Name 'activityGroupNames' -Value @($activityGroupNames)}
         if($additionalInformation){$objBody | Add-Member -Type NoteProperty -Name 'additionalInformation' -Value "$additionalInformation"}
         if($confidence){$objBody | Add-Member -Type NoteProperty -Name 'confidence' $confidence}
         if($description){$objBody | Add-Member -Type NoteProperty -Name 'description' -Value "$description"}
@@ -395,22 +396,24 @@ function New-GraphSecurityTiIndicator {
         }
         if($externalId){$objBody | Add-Member -Type NoteProperty -Name 'externalId' -Value "$externalId"}
         if($isActive){$objBody | Add-Member -Type NoteProperty -Name 'isActive' $isActive}
-        if($killChain){$objBody | Add-Member -Type NoteProperty -Name 'killChain' -Value @("$killChain")}
+        if($killChain){$objBody | Add-Member -Type NoteProperty -Name 'killChain' -Value @($killChain)}
         if($knownFalsePositives){$objBody | Add-Member -Type NoteProperty -Name 'knownFalsePositives' -Value "$knownFalsePositives"}
         if($lastReportedDateTime){
             $lastReportedDateTime = (Get-Date -Date $lastReportedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
             $objBody | Add-Member -Type NoteProperty -Name 'lastReportedDateTime' -Value "$lastReportedDateTime"
         }
-        if($malwareFamilyNames){$objBody | Add-Member -Type NoteProperty -Name 'malwareFamilyNames' -Value @("$malwareFamilyNames")}
+        if($malwareFamilyNames){$objBody | Add-Member -Type NoteProperty -Name 'malwareFamilyNames' -Value @($malwareFamilyNames)}
         if($passiveOnly){$objBody | Add-Member -Type NoteProperty -Name 'passiveOnly' $passiveOnly}
         if($severity){$objBody | Add-Member -Type NoteProperty -Name 'severity' $severity}
-        if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @("$tags")}
+        if($tags){$objBody | Add-Member -Type NoteProperty -Name 'tags' -Value @($tags)}
         if($targetProduct){$objBody | Add-Member -Type NoteProperty -Name 'targetProduct' -Value "$targetProduct"}
         if($threatType){$objBody | Add-Member -Type NoteProperty -Name 'threatType' -Value "$threatType"}
         if($tlpLevel){$objBody | Add-Member -Type NoteProperty -Name 'tlpLevel' -Value "$tlpLevel"}
 
         if($PSCmdlet.ParameterSetName -eq "Email") {
             # Email observables
+            Write-Verbose "Email Observables"
+            if($emailEncoding){$objBody | add-Member -Type NoteProperty -name 'emailEncoding' -Value "$emailEncoding"}
             if($emailLanguage){$objBody | Add-Member -Type NoteProperty -Name 'emailLanguage' -Value "$emailLanguage"}
             if($emailRecipient){$objBody | Add-Member -Type NoteProperty -Name 'emailRecipient' -Value "$emailRecipient"}
             if($emailSenderAddress){$objBody | Add-Member -Type NoteProperty -Name 'emailSenderAddress' -Value "$emailSenderAddress"}
@@ -423,6 +426,7 @@ function New-GraphSecurityTiIndicator {
 
         if($PSCmdlet.ParameterSetName -eq "File") {
             # File Observables
+            Write-Verbose "File Observables"
             if($fileCompileDateTime){
                 $fileCompileDateTime = (Get-Date -Date $fileCompileDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
                 $objBody | Add-Member -Type NoteProperty -Name 'fileCompileDateTime' -Value "$fileCompileDateTime"
@@ -449,6 +453,7 @@ function New-GraphSecurityTiIndicator {
 
         if($PSCmdlet.ParameterSetName -eq "Network") {
             # Network Observables
+            Write-Verbose "Network Observables"
             if($domainName){$objBody | Add-Member -Type NoteProperty -Name 'domainName' -Value "$domainName"}
             if($networkCidrBlock){$objBody | Add-Member -Type NoteProperty -Name 'networkCidrBlock' -Value "$networkCidrBlock"}
             if($networkDestinationAsn){$objBody | Add-Member -Type NoteProperty -Name 'networkDestinationAsn' $networkDestinationAsn}
