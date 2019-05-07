@@ -16,11 +16,19 @@
 
 .EXAMPLE
    $Data = Import-Csv .\email.csv | Select Action,ActivityGroupNames,AdditionalInformation,Description,DiamondModel,ExpirationDateTime,ExternalIndicatorId,KillChain,KnownfalsePositives,MalwareNames,Tags,TargetProduct,ThreatType,tlpLevel,EmailEncoding,EmailLanguage,EmailRecipient,EmailSenderAddress,EmailSenderName,EmailSourceDomain,EmailSourceIpAddress,EmailSubject,EmailXMailer,@{Name="passiveOnly"; Expression={[boolean]$_.passiveOnly}},@{Name="isActive"; Expression={[boolean]$_.isActive}},@{Name="Confidence"; Expression={[int32]$_.Confidence}},@{Name="Severity"; Expression={[int32]$_.Severity}}
-   $Data | New-GraphSecurityTiIndicator
+   $Data2 = $Data | ForEach-Object {$NonEmptyProperties = $_.psobject.Properties | Where-Object {$_.Value} | Select-Object -ExpandProperty Name; $_ | Select-Object -Property $NonEmptyProperties | ConvertTo-Json}
+   $Data2 | New-GraphSecurityTiIndicator
 
-    This will create a new indicator for each item in the CSV.  The CSV must have the required properties that match the API property names.  Since CSV import treats every item as a string, you must import to vairable and cast the correct type.
+    This will create a new indicator for each item in the CSV.  The CSV must have the required properties that match the API property names.  Since CSV import treats every item as a string, you must import to variable and cast the correct type.
 
-.FUNCTIONALITY
+.EXAMPLE
+   $Data = Import-Csv .\file.csv | Select Action,ActivityGroupNames,AdditionalInformation,Description,DiamondModel,ExpirationDateTime,ExternalIndicatorId,KillChain,KnownfalsePositives,MalwareNames,Tags,TargetProduct,ThreatType,tlpLevel,@{Name="passiveOnly"; Expression={[boolean]$_.passiveOnly}},@{Name="isActive"; Expression={[boolean]$_.isActive}},@{Name="Confidence"; Expression={[int32]$_.Confidence}},@{Name="Severity"; Expression={[int32]$_.Severity}},FileCompileDateTime,FileCreatedDateTime,FileHashType,FileHashValue,FileMutexName,FileName,FilePacker,FilePath,FileType,@{Name="FileSize"; Expression={[int64]$_.FileSize}}
+   $Data2 = $Data | ForEach-Object {$NonEmptyProperties = $_.psobject.Properties | Where-Object {$_.Value} | Select-Object -ExpandProperty Name; $_ | Select-Object -Property $NonEmptyProperties | ConvertTo-Json}
+   $Data2 | New-GraphSecurityTiIndicator
+
+    This will create a new indicator for each item in the CSV.  The CSV must have the required properties that match the API property names.  Since CSV import treats every item as a string, you must import to variable and cast the correct type.
+
+    .FUNCTIONALITY
    New-GraphSecurityTiIndicator is intended to function as a mechanism for creating TI Indicators using Microsoft Graph Security.
 #>
 function New-GraphSecurityTiIndicator {
@@ -165,7 +173,7 @@ function New-GraphSecurityTiIndicator {
         [Parameter(ParameterSetName = 'Email', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'File', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Parameter(ParameterSetName = 'Network', Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
-        [ValidateSet("unknown", "white", "green", "amber", "red")]
+        [ValidateSet("white", "green", "amber", "red")]
         [string]$tlpLevel,
 
         # Email observables
@@ -435,13 +443,15 @@ function New-GraphSecurityTiIndicator {
                 $fileCreatedDateTime = (Get-Date -Date $fileCreatedDateTime -UFormat '+%Y-%m-%dT%H:%M:%SZ')
                 $objBody | Add-Member -Type NoteProperty -Name 'fileCreatedDateTime' -Value "$fileCreatedDateTime"
             }
-            if($fileHashType -and $fileHashValue){
-                if($fileHashType){$objBody | Add-Member -Type NoteProperty -Name 'fileHashType' -Value "$fileHashType"}
-                if($fileHashValue){$objBody | Add-Member -Type NoteProperty -Name 'fileHashValue' -Value "$fileHashValue"}
-            }
-            Else{
-                Write-Error "fileHashType and fileHashValue are required together"
-                break
+            if($fileHashType -or $fileHashValue){
+                if($fileHashType -and $fileHashValue){
+                    if($fileHashType){$objBody | Add-Member -Type NoteProperty -Name 'fileHashType' -Value "$fileHashType"}
+                    if($fileHashValue){$objBody | Add-Member -Type NoteProperty -Name 'fileHashValue' -Value "$fileHashValue"}
+                }            
+                Else{
+                    Write-Error "fileHashType and fileHashValue are required together"
+                    break
+                }
             }
             if($fileMutexName){$objBody | Add-Member -Type NoteProperty -Name 'fileMutexName' -Value "$fileMutexName"}
             if($fileName){$objBody | Add-Member -Type NoteProperty -Name 'fileName' -Value "$fileName"}
