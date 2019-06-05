@@ -10,7 +10,7 @@
    For string collection properties supply the data in the format of "value1","Value2" or value1,value2
 
 .EXAMPLE
-   New-GraphSecurityTiIndicator -action block -description "File hash for cyrptominer.exe" -expirationDateTime 01/02/2020 -requiredProduct "Azure Sentinel" -threatType CyrptoMining -tlpLevel red -fileHashType SHA256 -fileHashValue 2D6BDFB341BE3A6234B24742377F93AA7C7CFB0D9FD64EFA9282C87852E57085
+   New-GraphSecurityTiIndicator -action block -description "File hash for cyrptominer.exe" -expirationDateTime 01/02/2020 -targetProduct "Azure Sentinel" -threatType CryptoMining -tlpLevel red -fileHashType SHA256 -fileHashValue 2D6BDFB341BE3A6234B24742377F93AA7C7CFB0D9FD64EFA9282C87852E57085
 
     This will create a new indicator to block based on file hash and expires 01/01/2020.
 
